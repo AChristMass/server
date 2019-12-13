@@ -6,3 +6,14 @@ BIMserver/*
 
 # Pycharm
 .idea/*
+
+# Python
+__pycache__/
+*.py[cod]
+
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
