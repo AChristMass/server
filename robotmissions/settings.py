@@ -14,6 +14,17 @@ import os
 import logging
 
 
+# BIM server configuration
+BIM = {
+    "url":       "http://localhost:8080/bimserver",
+    "mail":      "ccalle@etud.u-pem.fr",
+    "name":      "admin",
+    "password":  "adminadmin",
+    "api":       "http://localhost:8080/bimserver/json",
+    "smartevac": "https://github.com/AChristMass/smartevac/releases/download/smartevac-core-0"
+                 ".0.1-SNAPSHOT/smartevac-core-0.0.1-SNAPSHOT.jar"
+}
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
