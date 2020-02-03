@@ -17,3 +17,7 @@ htmlcov/
 .tox/
 .coverage
 .coverage.*
+
+# venv
+env/*
+venv/*
