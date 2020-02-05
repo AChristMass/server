@@ -3,6 +3,8 @@
 import os
 import sys
 
+from robotmissions import settings
+
 
 def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'robotmissions.settings')
@@ -14,6 +16,10 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
+
+    if settings.APPS_DIR not in sys.path:
+        sys.path.append(settings.APPS_DIR)
+
     execute_from_command_line(sys.argv)
 
 

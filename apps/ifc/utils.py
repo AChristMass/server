@@ -1,3 +1,4 @@
+"""
 import json
 from tkinter import *
 import ifcopenshell
@@ -262,3 +263,5 @@ root.bind("<space>", changefloor)
 canvas.pack()
 
 root.mainloop()
+
+"""

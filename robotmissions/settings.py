@@ -13,17 +13,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 import logging
 
-
-# BIM server configuration
-BIM = {
-    "url":       "http://localhost:8080/bimserver",
-    "mail":      "ccalle@etud.u-pem.fr",
-    "name":      "admin",
-    "password":  "adminadmin",
-    "api":       "http://localhost:8080/bimserver/json",
-    "smartevac": "https://github.com/AChristMass/smartevac/releases/download/smartevac-core-0"
-                 ".0.1-SNAPSHOT/smartevac-core-0.0.1-SNAPSHOT.jar"
-}
+IFC_FILES_DIR = "C:/RobotMissionIfc/" if os.name == 'nt' else "/RobotMissionIfc/"
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -35,7 +25,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '_ed^#1$q9@o)y1+)$8@duvkq3a+u(i@79r!atb#-32qw-vphh1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -50,13 +40,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'ifc',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
