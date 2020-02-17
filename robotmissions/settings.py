@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
-import os
 import logging
+import os
 
 IFC_FILES_DIR = "C:/RobotMissionIfc/" if os.name == 'nt' else "/RobotMissionIfc/"
 
@@ -27,7 +27,7 @@ SECRET_KEY = '_ed^#1$q9@o)y1+)$8@duvkq3a+u(i@79r!atb#-32qw-vphh1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["192.168.43.57"]
 
 # Application definition
 APP_DIRNAME = "apps"
@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'ifc',
+    'mission',
+    'robot'
 ]
 
 MIDDLEWARE = [
@@ -50,16 +52,17 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'robotmissions.middlewares.PutParsingMiddleware'
 ]
 
 ROOT_URLCONF = 'robotmissions.urls'
 
 TEMPLATES = [
     {
-        'BACKEND':  'django.template.backends.django.DjangoTemplates',
-        'DIRS':     [],
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
         'APP_DIRS': True,
-        'OPTIONS':  {
+        'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
@@ -77,12 +80,12 @@ WSGI_APPLICATION = 'robotmissions.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE':   'django.db.backends.postgresql_psycopg2',
-        'NAME':     'robotmissions_db',
-        'USER':     'robotmissions_user',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'robotmissions_db',
+        'USER': 'robotmissions_user',
         'PASSWORD': 'missions',
-        'HOST':     'localhost',
-        'PORT':     '',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 
