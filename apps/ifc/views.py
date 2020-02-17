@@ -1,4 +1,5 @@
 import json
+import os
 import time
 
 from django import views
@@ -29,7 +30,7 @@ class IfcView(views.View):
                 return HttpResponse(status=400, content="Name taken")
 
             ifc_file_content = request.FILES['ifc_file'].read()
-            saved_filepath = f'{settings.IFC_FILES_DIR}{name}{time.time()}.ifc'
+            saved_filepath = os.path.join(settings.IFC_FILES_DIR, f'{name}{time.time()}.ifc')
             with open(saved_filepath, 'wb+') as new_file:
                 new_file.write(ifc_file_content)
 

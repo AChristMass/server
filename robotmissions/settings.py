@@ -13,10 +13,10 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import logging
 import os
 
-IFC_FILES_DIR = "C:/RobotMissionIfc/" if os.name == 'nt' else "/RobotMissionIfc/"
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+IFC_FILES_DIR = os.path.join(BASE_DIR, "RobotMissionIfc")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -27,7 +27,7 @@ SECRET_KEY = '_ed^#1$q9@o)y1+)$8@duvkq3a+u(i@79r!atb#-32qw-vphh1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["192.168.43.57"]
+ALLOWED_HOSTS = ["192.168.43.57", "127.0.0.1"]
 
 # Application definition
 APP_DIRNAME = "apps"
