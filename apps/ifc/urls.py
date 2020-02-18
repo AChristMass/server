@@ -1,6 +1,7 @@
 from django.urls import path
 
-from ifc.views import *
+from ifc.views import IfcListView, IfcView
+
 
 app_name = 'ifc'
 

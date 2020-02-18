@@ -1,6 +1,7 @@
 from django.urls import path
 
-from mission.views import *
+from mission.views import DeplacementMissionListView, DeplacementMissionView
+
 
 app_name = 'mission'
 
