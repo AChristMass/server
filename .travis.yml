@@ -15,6 +15,7 @@ before_install:
   - chmod +x Miniconda3-latest-Linux-x86_64.sh
   - ./Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
   - reset
+  - conda
 
 install:
   - pip install tox-travis tox-conda
