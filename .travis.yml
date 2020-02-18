@@ -11,13 +11,13 @@ python:
   - '3.7'
 
 before_install:
-  - ./script/install.sh
+  - ./scripts/install.sh
 
 install:
   - pip install -U wheel setuptools
   - pip install tox-travis tox-conda
   - pip install codecov
-  -
+
 script: tox
 
 after_success: codecov
