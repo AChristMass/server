@@ -11,7 +11,7 @@ python:
   - '3.7'
 
 before_install:
-  - ./script/install_release.sh
+  - ./script/install.sh
 
 install:
   - pip install -U wheel setuptools
@@ -25,4 +25,4 @@ after_success: codecov
 env:
   global:
     - PGPORT=5432
-    - TRAVIS="TRAVIS"
+    - TRAVIS=TRAVIS
