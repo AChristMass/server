@@ -11,11 +11,11 @@ python:
   - '3.7'
 
 before_install:
-  - ./scripts/install.sh
+  - pip install tox-travis tox-conda
+  - mkdir RobotMissionIfc
 
 install:
   - pip install -U wheel setuptools
-  - pip install tox-travis tox-conda
   - pip install codecov
 
 script: tox
