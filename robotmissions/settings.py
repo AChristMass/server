@@ -13,8 +13,9 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import logging
 import os
 
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from sklearn import neighbors
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IFC_FILES_DIR = os.path.join(BASE_DIR, "RobotMissionIfc")
 
@@ -106,6 +107,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+ML_ALGORITHM = neighbors.KNeighborsClassifier(n_neighbors=3)
 
 try:
     from robotmissions.config import *
