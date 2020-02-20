@@ -1,6 +1,7 @@
 from django.db import models
 
-from ifc.models import IfcModel, PositionModel
+from ifc.models import PositionModel
+
 
 
 class RobotStatusModel(models.Model):

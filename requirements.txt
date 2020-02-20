@@ -1,5 +1,5 @@
-wheel
 django
 psycopg2
 requests
-
+sklearn
+wheel
