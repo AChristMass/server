@@ -31,4 +31,3 @@ env:
   global:
     - PGPORT=5432
     - TRAVIS=TRAVIS
-    - CODECOV_TOKEN=19d71a9a-8357-40ca-b10e-0bf51fbab738
