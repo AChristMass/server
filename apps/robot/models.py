@@ -1,45 +1,23 @@
 from django.db import models
 
-from ifc.models import IfcModel
-
-
-
-class RobotPositionModel(models.Model):
-    ifc = models.ForeignKey(IfcModel, on_delete=models.CASCADE)
-    floor = models.CharField(max_length=100)
-    x = models.DecimalField(max_digits=20, decimal_places=2)
-    y = models.DecimalField(max_digits=20, decimal_places=2)
-    
-    
-    def to_dict(self):
-        return dict(
-            id=self.pk,
-            ifc=self.ifc.id,
-            floor=self.floor,
-            x=self.x,
-            y=self.y
-        )
-
+from ifc.models import IfcModel, PositionModel
 
 
 class RobotStatusModel(models.Model):
     battery = models.DecimalField(max_digits=20, decimal_places=2)
     rotation = models.DecimalField(max_digits=20, decimal_places=2)
-    
-    
+
     def to_dict(self):
         return dict(
             id=self.pk, battery=self.battery, rotation=self.rotation)
 
 
-
 class RobotModel(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    position = models.ForeignKey(RobotPositionModel, on_delete=models.CASCADE)
+    position = models.ForeignKey(PositionModel, on_delete=models.CASCADE)
     status = models.ForeignKey(RobotStatusModel, on_delete=models.CASCADE,
                                null=True)  # can be null before any comm with the robot
-    
-    
+
     def to_dict(self):
         return dict(
             id=self.pk,

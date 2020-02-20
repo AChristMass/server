@@ -4,7 +4,7 @@ from django.views.generic import ListView
 
 from ifc.models import IfcModel
 from robot.forms import RobotForm
-from robot.models import RobotModel, RobotPositionModel
+from robot.models import RobotModel, PositionModel
 
 
 
@@ -25,10 +25,10 @@ class RobotView(views.View):
                 ifc = IfcModel.objects.get(pk=form.cleaned_data["ifc_id"])
             except IfcModel.DoesNotExist:
                 return HttpResponse(status=404, content="Ifc does not exist")
-            robot_position = RobotPositionModel.objects.create(ifc=ifc,
-                                                               floor=form.cleaned_data["floor"],
-                                                               x=form.cleaned_data["x"],
-                                                               y=form.cleaned_data["y"])
+            robot_position = PositionModel.objects.create(ifc=ifc,
+                                                          floor=form.cleaned_data["floor"],
+                                                          x=form.cleaned_data["x"],
+                                                          y=form.cleaned_data["y"])
             robot = RobotModel.objects.create(name=form.cleaned_data["name"],
                                               position=robot_position)
             return JsonResponse(status=200, data=robot.to_dict())
