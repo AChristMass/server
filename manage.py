@@ -19,7 +19,6 @@ def main():
 
     if settings.APPS_DIR not in sys.path:
         sys.path.append(settings.APPS_DIR)
-
     execute_from_command_line(sys.argv)
 
 

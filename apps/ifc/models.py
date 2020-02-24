@@ -12,7 +12,7 @@ from ifc.utils import connection_map, doors_locations, spaces_infos, spaces_poly
 class IfcModel(models.Model):
     name = models.CharField(max_length=100, unique=True)
     graph = JSONField(null=False, default=dict)
-    filePath = models.FilePathField(path=settings.IFC_FILES_DIR)
+    file_path = models.FilePathField(path=settings.IFC_FILES_DIR)
     
     
     @classmethod
@@ -36,7 +36,7 @@ class IfcModel(models.Model):
     
     @classmethod
     def validate_ifc_file(cls, file):
-        print("validation ifc file")
+        #  TODO : something
         return True
     
     
@@ -44,8 +44,8 @@ class IfcModel(models.Model):
         return dict(
             id=self.pk,
             name=self.name,
-            graph=json.loads(self.graph),
-            filePath=self.filePath
+            graph=self.graph,
+            filePath=self.file_path
         )
 
 

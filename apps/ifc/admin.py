@@ -7,4 +7,4 @@ from ifc.models import IfcModel
 
 @admin.register(IfcModel)
 class IfcModelAdmin(admin.ModelAdmin):
-    list_display = ("name", "filePath")
+    list_display = ("name", "file_path")

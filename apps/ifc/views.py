@@ -14,9 +14,9 @@ from ifc.models import IfcModel
 
 class IfcView(views.View):
     
-    def get(self, request):
+    def get(self, request, pk):
         try:
-            ifc = IfcModel.objects.get(pk=request.GET["id"])
+            ifc = IfcModel.objects.get(pk=pk)
             return JsonResponse(data=ifc.to_dict(), status=200, safe=False)
         except IfcModel.DoesNotExist:
             return HttpResponse(content="Ifc does not exist", status=404)
@@ -37,7 +37,7 @@ class IfcView(views.View):
             
             graph = IfcModel.parse(saved_filepath)
             
-            IfcModel.objects.create(name=name, filePath=saved_filepath, graph=graph)
+            IfcModel.objects.create(name=name, file_path=saved_filepath, graph=graph)
             return HttpResponse(status=200, content="ok")
         return HttpResponse(status=400, content=str(form.errors))
     
@@ -74,6 +74,5 @@ class IfcListView(ListView):
         queryset = self.get_queryset().all()
         data = list()
         for ifc in queryset:
-            print(ifc.id)
             data.append(ifc.to_dict())
         return JsonResponse(data, status=200, safe=False)
