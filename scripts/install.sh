@@ -4,6 +4,11 @@ echo "Installing requirements..."
 pip3 install -r requirements.txt || { echo>&2 "ERROR: pip3 install -r requirements.txt failed"; exit 1; }
 echo "Done !"
 
+echo ""
+echo "Creating RobotMissionIfc directory...."
+if [ ! -d RobotMissionIfc ]; then
+    mkdir RobotMissionIfc || { echo>&2 "ERROR: Can't create RobotMissionIfc" ; exit 1; }
+fi
 
 echo ""
 echo "Configuring database..."
