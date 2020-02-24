@@ -18,6 +18,7 @@ before_install:
   - export PATH=/home/travis/miniconda/bin:$PATH
   - conda update --yes conda
   - conda install --yes -c intel scikit-learn
+  - conda install --yes -c anaconda django
   - ./scripts/install.sh
 
 install:
