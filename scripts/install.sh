@@ -1,7 +1,7 @@
 #!/bin/bash
 echo ""
 echo "Installing requirements..."
-pip3 install -r requirements.txt || { echo>&2 "ERROR: pip3 install -r requirements.txt failed"; exit 1; }
+pip install -r requirements.txt || { echo>&2 "ERROR: pip3 install -r requirements.txt failed"; exit 1; }
 echo "Done !"
 
 echo ""
