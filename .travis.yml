@@ -16,7 +16,7 @@ before_install:
   - ./Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
   - cp test/config_test_pgsql.py robotmissions/config.py
   - export PATH=/home/travis/miniconda/bin:$PATH
-  - conda install pip
+  - conda install --yes pip
   - conda install --yes -c conda-forge ifcopenshell
   - ./scripts/install.sh
 
