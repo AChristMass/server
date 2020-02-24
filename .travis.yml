@@ -19,8 +19,8 @@ before_install:
   - conda update --yes conda
   - conda install --yes -c intel scikit-learn
   - conda install --yes -c anaconda django
-    - conda install --yes -c anaconda psycopg2
-    - conda install --yes -c conda-forge ifcopenshell
+  - conda install --yes -c anaconda psycopg2
+  - conda install --yes -c conda-forge ifcopenshell
   - ./scripts/install.sh
 
 install:
