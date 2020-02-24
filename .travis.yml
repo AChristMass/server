@@ -21,12 +21,10 @@ before_install:
   - conda install --yes -c anaconda django
   - conda install --yes -c anaconda psycopg2
   - conda install --yes -c conda-forge ifcopenshell
-  - python3 manage.py makemigrations
-  - python3 manage.py migrate
+  - ./scripts/install.sh
 
 install:
   - pip install tox-travis tox-conda
-  - mkdir RobotMissionIfc
   - pip install -U wheel setuptools
   - pip install codecov
 
