@@ -45,8 +45,6 @@ def spaces_polygons(spaces, rel_space_boundary):
             poly_map[space.GlobalId] = poly_map.get(space.GlobalId, list())
             poly_map[space.GlobalId].append(profile.Curve)
     for space in spaces:
-        if space.GlobalId not in poly_map:
-            continue
         poly_map[space.GlobalId] = sorted(poly_map[space.GlobalId], key=lambda curve: curve.id())
         poly_map[space.GlobalId] = [p.Coordinates[:2] for curve in poly_map[space.GlobalId] for p in
                                     curve.Points]

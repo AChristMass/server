@@ -13,6 +13,7 @@ class IfcModel(models.Model):
     name = models.CharField(max_length=100, unique=True)
     graph = JSONField(null=False, default=dict)
     file_path = models.FilePathField(path=settings.IFC_FILES_DIR)
+    last_upload = models.DateTimeField(auto_now_add=True)
     
     
     @classmethod
