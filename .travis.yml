@@ -21,7 +21,8 @@ before_install:
   - conda install --yes -c anaconda django
   - conda install --yes -c anaconda psycopg2
   - conda install --yes -c conda-forge ifcopenshell
-  - ./scripts/install.sh
+  - python3 manage.py makemigrations
+  - python3 manage.py migrate
 
 install:
   - pip install tox-travis tox-conda
