@@ -6,7 +6,7 @@ echo "Done !"
 
 echo ""
 echo "Creating RobotMissionIfc directory...."
-if [ ! -d RobotMissionIfc ]; then
+if [[ ! -d RobotMissionIfc ]]; then
     mkdir RobotMissionIfc || { echo>&2 "ERROR: Can't create RobotMissionIfc" ; exit 1; }
 fi
 

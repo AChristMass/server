@@ -2,9 +2,9 @@ from django import views
 from django.http import HttpResponse, JsonResponse
 from django.views.generic import ListView
 
-from ifc.models import IfcModel
+from ifc.models import IfcModel, PositionModel
 from robot.forms import RobotForm
-from robot.models import RobotModel, PositionModel
+from robot.models import RobotModel
 
 
 
