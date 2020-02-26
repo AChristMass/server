@@ -14,8 +14,6 @@ import logging
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-from sklearn import neighbors
-
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IFC_FILES_DIR = os.path.join(BASE_DIR, "RobotMissionIfc")
 
@@ -26,9 +24,9 @@ IFC_FILES_DIR = os.path.join(BASE_DIR, "RobotMissionIfc")
 SECRET_KEY = '_ed^#1$q9@o)y1+)$8@duvkq3a+u(i@79r!atb#-32qw-vphh1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["192.168.43.57", "127.0.0.1"]
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 APP_DIRNAME = "apps"
@@ -109,8 +107,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-
-ML_ALGORITHM = neighbors.KNeighborsClassifier(n_neighbors=3)
 
 try:
     from robotmissions.config import *

@@ -12,7 +12,7 @@ async def main_loop(ws):
 
 
 async def connect_robot(ip, port):
-    uri = f"ws://{ip}:{port}/robotsocket/"
+    uri = "ws://" + ip + ":" + port + "/robotsocket/"
     with open("conf.json", "r") as jsonfile:
         data = jsonfile.read()
     

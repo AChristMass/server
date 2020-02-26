@@ -15,6 +15,7 @@ class RobotConsumer(WebsocketConsumer):
     
     
     def connect(self):
+        print("AAAAA")
         self.accept()
     
     

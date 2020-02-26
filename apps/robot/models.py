@@ -43,7 +43,6 @@ class RobotModel(models.Model):
     
     def to_dict(self):
         return dict(
-            id=self.pk,
-            name=self.name,
-            position=self.position.to_dict(),
+            uuidid=self.pk,
+            connected=self.connected,
             status=self.status.to_dict() if self.status else None)
