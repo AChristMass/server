@@ -71,12 +71,16 @@ class SendMissionView(View):
             if not robot.connected:
                 return HttpResponse(status=400, content="Robot is not connected")
             
-            layer = get_channel_layer()
             robot_config = settings.ROBOT_CONFIGS[robot.type]
             start = (mission.start_x, mission.start_y)
             end = (mission.end_x, mission.end_y)
-            actions = actions_from_ifc(mission.ifc.id, mission.floor, start, end, robot_config)
-            
+            try:
+                actions = actions_from_ifc(mission.ifc.id, mission.floor, start, end, robot_config)
+            except Exception as e:
+                return HttpResponse(status=400, content=str(e))
+                
+
+            layer = get_channel_layer()
             async_to_sync(layer.group_send)(str(robot.uuid),
                                             {"type": "mission", "text_data": str(actions)})
             return HttpResponse(status=200, content="ok")

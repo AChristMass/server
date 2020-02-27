@@ -48,12 +48,13 @@ def spaces_polygons_data(spaces, rel_space_boundary):
             poly_map[space.GlobalId].append(profile.Curve)
     for space in spaces:
         poly_map[space.GlobalId] = sorted(poly_map[space.GlobalId], key=lambda c: c.id())
-        for curve in poly_map[space.GlobalId]:
+        for i_curve in range(len(poly_map[space.GlobalId])):
+            curve = poly_map[space.GlobalId][i_curve]
             for p in curve.Points:
                 point = p.Coordinates[:2]
-                poly_map[space.GlobalId] = point
-                x = p.Coordinates[0]
-                y = p.Coordinates[1]
+                poly_map[space.GlobalId][i_curve] = point
+                x = point[0]
+                y = point[1]
                 if x_min is None or x < x_min:
                     x_min = x
                 if x_max is None or x > x_max:

@@ -28,16 +28,16 @@ def stretch(matrix, x, y, dist=0, val=1):
 
 
 
-def to_x_y(coord, div=10):
-    return int(coord[X] // div), int(coord[Y] // div)
+def to_x_y(coord, div):
+    return int(coord[0] // div), int(coord[1] // div)
 
 
 
-def points_on_polygons_gen(all_polygons):
+def points_on_polygons_gen(all_polygons, div):
     for polygons in all_polygons:
         for ipt in range(-1, len(polygons) - 1):
-            cur_x, cur_y = to_x_y(polygons[ipt])
-            nxt_x, nxt_y = to_x_y(polygons[ipt + 1])
+            cur_x, cur_y = to_x_y(polygons[ipt], div)
+            nxt_x, nxt_y = to_x_y(polygons[ipt + 1], div)
             if cur_y == nxt_y:
                 for pace_x in range(min(cur_x, nxt_x), max(cur_x, nxt_x)):
                     yield pace_x, -cur_y
@@ -157,19 +157,19 @@ def create_matrix(ifc, floor, cell_div, stretch_size):
     data = json.loads(ifc.data)
     spaces_polygons = data[floor]["spacesPolygons"]
     doors_polygons = data[floor]["doorsPolygons"]
-    width = data["x_max"] - data["x_min"]
-    height = data["y_max"] - data["y_min"]
+    width = int(abs(data["x_max"] - data["x_min"]))
+    height = int(abs(data["y_max"] - data["y_min"]))
     m = [[0] * width for _ in range(height)]
     walls_points = []
     # add walls
-    for x, y in points_on_polygons_gen(spaces_polygons.values()):
+    for x, y in points_on_polygons_gen(spaces_polygons.values(), cell_div):
         m[y][x] = 1
         walls_points.append((x, y))
     
     # remove points on doors to create passages
     door_way_points = []
     door_board_points = []
-    for x, y in points_on_polygons_gen(doors_polygons.values()):
+    for x, y in points_on_polygons_gen(doors_polygons.values(), cell_div):
         if m[y][x]:
             door_way_points.append((x, y))
             m[y][x] = 0
@@ -178,7 +178,7 @@ def create_matrix(ifc, floor, cell_div, stretch_size):
             m[y][x] = 1
     
     # stretch all walls
-    for x, y in points_on_polygons_gen(spaces_polygons.values()):
+    for x, y in points_on_polygons_gen(spaces_polygons.values(), cell_div):
         stretch(m, x, y, val=stretch_size)
     
     # stretch door boards
@@ -223,14 +223,7 @@ def actions_from_ifc(ifc_id, floor, source, target, robot_config):
     graph = create_graph(m)
     
     # find path between two points
-    path = []
-    
-    try:
-        path = nx.algorithms.shortest_paths.generic.shortest_path(
-            graph, source=source, target=target, weight="weight")
-        for x, y in path:
-            m[y // cell_div][x // cell_div] = 2
-    except nx.NetworkXNoPath:
-        logger.warning("unable to find path between source and target")
+    path = nx.algorithms.shortest_paths.generic.shortest_path(
+        graph, source=source, target=target, weight="weight")
     
     return create_actions_path(path, directions, actions)
