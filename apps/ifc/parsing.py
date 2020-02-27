@@ -80,7 +80,8 @@ def doors_polygons(spaces, rel_space_boundary):
             doors_polys[door.GlobalId].append(profile.Curve)
     for door_id in doors_polys:
         doors_polys[door_id] = sorted(doors_polys[door_id], key=lambda curve: curve.id())
-        doors_polys[door_id] = [p.Coordinates[:2] for curve in doors_polys[door_id] for p in curve.Points]
+        doors_polys[door_id] = [p.Coordinates[:2] for curve in doors_polys[door_id] for p in
+                                curve.Points]
     return doors_polys
 
 

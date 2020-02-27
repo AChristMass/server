@@ -1,7 +1,6 @@
 import json
 import logging
 from math import sqrt
-from tkinter import *
 
 import networkx as nx
 
@@ -19,7 +18,7 @@ def set_if_possible(matrix, x, y, val):
 
 
 
-def stretch(matrix, x, y, dist=0, val=1):
+def stretch(matrix, x, y, dist, val=1):
     if dist == 0 or y >= len(matrix) or x >= len(matrix[y]):
         return
     pos = [(x + dist, y), (x - dist, y), (x, y + dist), (x, y - dist)]
@@ -47,7 +46,7 @@ def points_on_polygons_gen(all_polygons, div):
 
 
 
-def create_graph(data, size=10):
+def create_graph(data, size):
     graph = nx.Graph()
     
     for y in range(len(data)):
@@ -82,7 +81,7 @@ def create_graph(data, size=10):
 
 
 
-def reduce(matrix, size=10):
+def reduce(matrix, size):
     data = [[0] * (len(matrix[0]) // size) for _ in range(len(matrix) // size)]
     
     for y in range(0, len(matrix), size):
@@ -115,12 +114,12 @@ def create_turn_action(cur_dir, nxt_dir, directions):
 
 
 
-def create_move_action(cur_pos, nxt_pos, div=10):
+def create_move_action(cur_pos, nxt_pos):
     c_x, c_y = cur_pos
     n_x, n_y = nxt_pos
     distance = sqrt((c_x - n_x)**2 + (c_y - n_y)**2)
-    # DIV multiplication to pass from centimeter to millimeter distance
-    return distance * div
+    # 10 multiplication to pass from centimeter to millimeter distance
+    return distance * 10
 
 
 
@@ -179,16 +178,16 @@ def create_matrix(ifc, floor, cell_div, stretch_size):
     
     # stretch all walls
     for x, y in points_on_polygons_gen(spaces_polygons.values(), cell_div):
-        stretch(m, x, y, val=stretch_size)
+        stretch(m, x, y, stretch_size)
     
     # stretch door boards
     # dist shouldn't have to be changed here
     for x, y in door_board_points:
-        stretch(m, x, y, val=stretch_size)
+        stretch(m, x, y, stretch_size)
     
     # unstretch door ways
     for x, y in door_way_points:
-        stretch(m, x, y, val=0)
+        stretch(m, x, y, stretch_size, val=0)
     
     # reduce to CELL_DIV size
     m = reduce(m, size=cell_div)
@@ -220,7 +219,7 @@ def actions_from_ifc(ifc_id, floor, source, target, robot_config):
     
     # create final graph
     m = create_matrix(ifc, floor, cell_div, stretch_size)
-    graph = create_graph(m)
+    graph = create_graph(m, cell_div)
     
     # find path between two points
     path = nx.algorithms.shortest_paths.generic.shortest_path(
