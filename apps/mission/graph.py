@@ -82,8 +82,7 @@ def create_graph(data, size):
 
 
 def reduce(matrix, size):
-    data = [[0] * (len(matrix[0]) // size) for _ in range(len(matrix) // size)]
-    
+    data = [[0] * (len(matrix[0])) for _ in range(len(matrix))]
     for y in range(0, len(matrix), size):
         block = matrix[y:y + size]
         for x in range(0, len(matrix[0]), size):
@@ -156,8 +155,8 @@ def create_matrix(ifc, floor, cell_div, stretch_size):
     data = json.loads(ifc.data)
     spaces_polygons = data[floor]["spacesPolygons"]
     doors_polygons = data[floor]["doorsPolygons"]
-    width = int(abs(data["x_max"] - data["x_min"]))
-    height = int(abs(data["y_max"] - data["y_min"]))
+    width = int(abs(data["x_max"] - data["x_min"]))+1 // cell_div
+    height = int(abs(data["y_max"] - data["y_min"]))+1 // cell_div
     m = [[0] * width for _ in range(height)]
     walls_points = []
     # add walls
@@ -190,7 +189,7 @@ def create_matrix(ifc, floor, cell_div, stretch_size):
         stretch(m, x, y, stretch_size, val=0)
     
     # reduce to CELL_DIV size
-    m = reduce(m, size=cell_div)
+    m = reduce(m, cell_div)
     
     return m
 
