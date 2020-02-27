@@ -1,11 +1,13 @@
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.views import View
 from django.views.generic import ListView
 
 from ifc.models import IfcModel
 from mission.forms import DeplacementMissionForm, SendMissionForm
+from mission.graph import actions_from_ifc
 from mission.models import DeplacementMissionModel
 from robot.models import RobotModel
 
@@ -70,7 +72,12 @@ class SendMissionView(View):
                 return HttpResponse(status=400, content="Robot is not connected")
             
             layer = get_channel_layer()
+            robot_config = settings.ROBOT_CONFIGS[robot.type]
+            start = (mission.start_x, mission.start_y)
+            end = (mission.end_x, mission.end_y)
+            actions = actions_from_ifc(mission.ifc.id, mission.floor, start, end, robot_config)
             
-            async_to_sync(layer.group_send)(str(robot.uuid), {"type": "mission", "text_data": "test"})
+            async_to_sync(layer.group_send)(str(robot.uuid),
+                                            {"type": "mission", "text_data": str(actions)})
             return HttpResponse(status=200, content="ok")
         return HttpResponse(status=400, content=form.errors)

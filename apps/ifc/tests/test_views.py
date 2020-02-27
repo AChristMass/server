@@ -22,9 +22,9 @@ class IfcViewTestCase(TestCase):
     def setUpTestData(cls):
         cls.client = Client()
         cls.ifc = IfcModel.objects.create(name="test1", file_path="test_path",
-                                          graph={"testk": "testv"})
+                                          data={"testk": "testv"})
         cls.ifc = IfcModel.objects.create(name="test2", file_path="test_path",
-                                          graph={"testk": "testv"})
+                                          data={"testk": "testv"})
         os.mkdir(IFC_TMP_DIR)
         with open(IFC_TMP_FILE, "w") as f:
             print("teeeest", file=f)
@@ -37,7 +37,7 @@ class IfcViewTestCase(TestCase):
     
     def test_get(self):
         response = self.client.get(reverse("ifc:single", args=[1]))
-        data = '"name": "test1", "graph": {"testk": "testv"},'
+        data = '"name": "test1", "data": {"testk": "testv"},'
         self.assertContains(response, data, status_code=200)
     
     

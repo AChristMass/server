@@ -35,9 +35,9 @@ class IfcView(views.View):
             with open(saved_filepath, 'wb') as new_file:
                 new_file.write(ifc_file_content)
             
-            graph = IfcModel.parse(saved_filepath)
+            data = IfcModel.parse(saved_filepath)
             
-            ifc = IfcModel.objects.create(name=name, file_path=saved_filepath, graph=graph)
+            ifc = IfcModel.objects.create(name=name, file_path=saved_filepath, data=data)
             return JsonResponse(status=200, data={"id": ifc.id, "path": ifc.file_path})
         return HttpResponse(status=400, content=str(form.errors))
     
@@ -52,15 +52,14 @@ class IfcView(views.View):
                 
                 if form.cleaned_data["ifc_file"]:
                     ifc_file_content = request.FILES['ifc_file'].read()
-                    with open(ifc_model.filePath, 'wb') as ifc_file:
+                    with open(ifc_model.file_path, 'wb') as ifc_file:
                         ifc_file.write(ifc_file_content)
                         ifc_model.last_upload = now()
                     
-                    ifc_model.graph = IfcModel.parse(ifc_model.filePath)
+                    ifc_model.data = IfcModel.parse(ifc_model.file_path)
                 
                 ifc_model.save()
                 ifc_json = IfcModel.objects.filter(pk=ifc_model.pk).values().first()
-                ifc_json["graph"] = ifc_json["graph"]
                 return JsonResponse(status=200, data=ifc_json)
             except IfcModel.DoesNotExist:
                 return HttpResponse(status=400, content="Ifc does not exist")

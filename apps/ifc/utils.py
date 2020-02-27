@@ -33,8 +33,10 @@ def connection_map(spaces):
 
 
 
-def spaces_polygons(spaces, rel_space_boundary):
+def spaces_polygons_data(spaces, rel_space_boundary):
     poly_map = {}
+    x_min = x_max = y_min = y_max = None
+    
     for bound in rel_space_boundary:
         space = bound.RelatingSpace
         if space not in spaces:
@@ -45,10 +47,22 @@ def spaces_polygons(spaces, rel_space_boundary):
             poly_map[space.GlobalId] = poly_map.get(space.GlobalId, list())
             poly_map[space.GlobalId].append(profile.Curve)
     for space in spaces:
-        poly_map[space.GlobalId] = sorted(poly_map[space.GlobalId], key=lambda curve: curve.id())
-        poly_map[space.GlobalId] = [p.Coordinates[:2] for curve in poly_map[space.GlobalId] for p in
-                                    curve.Points]
-    return poly_map
+        poly_map[space.GlobalId] = sorted(poly_map[space.GlobalId], key=lambda c: c.id())
+        for curve in poly_map[space.GlobalId]:
+            for p in curve.Points:
+                point = p.Coordinates[:2]
+                poly_map[space.GlobalId] = point
+                x = p.Coordinates[0]
+                y = p.Coordinates[1]
+                if x_min is None or x < x_min:
+                    x_min = x
+                if x_max is None or x > x_max:
+                    x_max = x
+                if y_min is None or y < y_min:
+                    y_min = y
+                if y_max is None or y > y_max:
+                    y_max = y
+    return poly_map, x_min, x_max, y_min, y_max
 
 
 

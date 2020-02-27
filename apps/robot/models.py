@@ -1,10 +1,7 @@
+from django.conf import settings
 from django.db import models
 import logging
 
-
-ROBOT_TYPES = {
-    "ev3": "ev3"
-}
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +20,8 @@ class RobotStatusModel(models.Model):
 
 class RobotModel(models.Model):
     uuid = models.UUIDField(primary_key=True, null=False, editable=False)
-    type = models.CharField(null=False, choices=zip(ROBOT_TYPES.keys(), ROBOT_TYPES.values()),
+    type = models.CharField(null=False, choices=zip(settings.ROBOT_CONFIGS.keys(),
+                                                    settings.ROBOT_CONFIGS.keys()),
                             max_length=10)
     connected = models.BooleanField(default=False)
     channel_name = models.CharField(null=False, max_length=64)

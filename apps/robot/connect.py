@@ -1,9 +1,14 @@
 import json
-from json import JSONDecodeError
+import logging
+
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
+from django.conf import settings
 
-from robot.models import ROBOT_TYPES, RobotModel
+from robot.models import RobotModel
+
+
+logger = logging.getLogger(__name__)
 
 
 
@@ -22,7 +27,7 @@ class RobotConsumer(WebsocketConsumer):
         if self.model is None:
             try:
                 data = json.loads(text_data)
-            except JSONDecodeError:
+            except json.JSONDecodeError:
                 self.close(code=3001)  # Invalid JSON
                 return
             
@@ -30,7 +35,7 @@ class RobotConsumer(WebsocketConsumer):
                 self.close(code=3002)  # JSON must have fields : uuid, type
                 return
             
-            if data["type"] not in ROBOT_TYPES:
+            if data["type"] not in settings.ROBOT_CONFIGS:
                 self.close(code=3003)  # Robot type not handled
                 return
             
@@ -42,7 +47,7 @@ class RobotConsumer(WebsocketConsumer):
             async_to_sync(self.channel_layer.group_add)(str(self.model.uuid), self.channel_name)
             self.send(text_data="ok")
         else:
-            print(f"Robot {self.model.uuid} sent : {text_data}")
+            logger.warning(f"Robot {self.model.uuid} sent : {text_data}")
             # TODO com with robot
     
     
@@ -50,7 +55,8 @@ class RobotConsumer(WebsocketConsumer):
         if self.model:
             async_to_sync(self.channel_layer.group_discard)(str(self.model.uuid), self.channel_name)
             self.model.disconnect()
-            
+    
+    
     def mission(self, event):
         message = event["text_data"]
         self.send(text_data=message)

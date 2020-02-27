@@ -3,3 +3,4 @@ django
 psycopg2
 wheel
 channels
+networkx
