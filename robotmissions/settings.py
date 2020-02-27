@@ -117,7 +117,7 @@ CHANNEL_LAYERS = {
 
 ROBOT_CONFIGS = {
     "ev3": {
-        "cell_div":     100,
+        "cell_div":     10,
         "stretch_size": 5
     }
 }

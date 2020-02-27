@@ -48,13 +48,16 @@ def spaces_polygons_data(spaces, rel_space_boundary):
             poly_map[space.GlobalId].append(profile.Curve)
     for space in spaces:
         poly_map[space.GlobalId] = sorted(poly_map[space.GlobalId], key=lambda c: c.id())
-        for i_curve in range(len(poly_map[space.GlobalId])):
-            curve = poly_map[space.GlobalId][i_curve]
+        lst = []
+        for curve in poly_map[space.GlobalId]:
             for p in curve.Points:
                 point = p.Coordinates[:2]
-                poly_map[space.GlobalId][i_curve] = point
-                x = point[0]
-                y = point[1]
+                # divide by 10 to pass from mm to cm
+                x = point[0] / 10
+                y = point[1] / 10
+                # add it to final list points
+                lst.append((x, y))
+                # update x and y min and max
                 if x_min is None or x < x_min:
                     x_min = x
                 if x_max is None or x > x_max:
@@ -63,6 +66,8 @@ def spaces_polygons_data(spaces, rel_space_boundary):
                     y_min = y
                 if y_max is None or y > y_max:
                     y_max = y
+        poly_map[space.GlobalId] = lst
+    
     return poly_map, x_min, x_max, y_min, y_max
 
 
@@ -79,9 +84,17 @@ def doors_polygons(spaces, rel_space_boundary):
             doors_polys[door.GlobalId] = doors_polys.get(door.GlobalId, list())
             doors_polys[door.GlobalId].append(profile.Curve)
     for door_id in doors_polys:
-        doors_polys[door_id] = sorted(doors_polys[door_id], key=lambda curve: curve.id())
-        doors_polys[door_id] = [p.Coordinates[:2] for curve in doors_polys[door_id] for p in
-                                curve.Points]
+        doors_polys[door_id] = sorted(doors_polys[door_id], key=lambda c: c.id())
+        lst = []
+        for curve in doors_polys[door_id]:
+            for p in curve.Points:
+                point = p.Coordinates[:2]
+                # divide by 10 to pass from mm to cm
+                x = point[0] / 10
+                y = point[1] / 10
+                # add it to final list points
+                lst.append((x, y))
+        doors_polys[door_id] = lst
     return doors_polys
 
 

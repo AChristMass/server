@@ -27,16 +27,11 @@ def stretch(matrix, x, y, dist, val=1):
 
 
 
-def to_x_y(coord, div):
-    return int(coord[0] // div), int(coord[1] // div)
-
-
-
-def points_on_polygons_gen(all_polygons, div):
+def points_on_polygons_gen(all_polygons):
     for polygons in all_polygons:
         for ipt in range(-1, len(polygons) - 1):
-            cur_x, cur_y = to_x_y(polygons[ipt], div)
-            nxt_x, nxt_y = to_x_y(polygons[ipt + 1], div)
+            cur_x, cur_y = int(polygons[ipt][0]), int(polygons[ipt][1])
+            nxt_x, nxt_y = int(polygons[ipt + 1][0]), int(polygons[ipt + 1][1])
             if cur_y == nxt_y:
                 for pace_x in range(min(cur_x, nxt_x), max(cur_x, nxt_x)):
                     yield pace_x, -cur_y
@@ -82,7 +77,8 @@ def create_graph(data, size):
 
 
 def reduce(matrix, size):
-    data = [[0] * (len(matrix[0])) for _ in range(len(matrix))]
+    data = [[0] * (len(matrix[0]) // size + 1) for _ in range(len(matrix) // size + 1)]
+    
     for y in range(0, len(matrix), size):
         block = matrix[y:y + size]
         for x in range(0, len(matrix[0]), size):
@@ -155,19 +151,19 @@ def create_matrix(ifc, floor, cell_div, stretch_size):
     data = json.loads(ifc.data)
     spaces_polygons = data[floor]["spacesPolygons"]
     doors_polygons = data[floor]["doorsPolygons"]
-    width = int(abs(data["x_max"] - data["x_min"]))+1 // cell_div
-    height = int(abs(data["y_max"] - data["y_min"]))+1 // cell_div
-    m = [[0] * width for _ in range(height)]
+    width = int(abs(data["x_max"] - data["x_min"]))
+    height = int(abs(data["y_max"] - data["y_min"]))
+    m = [[0] * (width+1) for _ in range(height+1)]
     walls_points = []
     # add walls
-    for x, y in points_on_polygons_gen(spaces_polygons.values(), cell_div):
+    for x, y in points_on_polygons_gen(spaces_polygons.values()):
         m[y][x] = 1
         walls_points.append((x, y))
     
     # remove points on doors to create passages
     door_way_points = []
     door_board_points = []
-    for x, y in points_on_polygons_gen(doors_polygons.values(), cell_div):
+    for x, y in points_on_polygons_gen(doors_polygons.values()):
         if m[y][x]:
             door_way_points.append((x, y))
             m[y][x] = 0
@@ -176,7 +172,7 @@ def create_matrix(ifc, floor, cell_div, stretch_size):
             m[y][x] = 1
     
     # stretch all walls
-    for x, y in points_on_polygons_gen(spaces_polygons.values(), cell_div):
+    for x, y in points_on_polygons_gen(spaces_polygons.values()):
         stretch(m, x, y, stretch_size)
     
     # stretch door boards
@@ -223,5 +219,5 @@ def actions_from_ifc(ifc_id, floor, source, target, robot_config):
     # find path between two points
     path = nx.algorithms.shortest_paths.generic.shortest_path(
         graph, source=source, target=target, weight="weight")
-    
+
     return create_actions_path(path, directions, actions)
