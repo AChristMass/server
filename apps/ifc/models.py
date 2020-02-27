@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 
-from ifc.utils import connection_map, doors_locations, spaces_infos, spaces_polygons_data
+from ifc.parsing import connection_map, doors_polygons, spaces_infos, spaces_polygons_data
 
 
 
@@ -35,7 +35,7 @@ class IfcModel(models.Model):
                 'spacesInfos':    spaces_infos(spaces),
                 'connectionMap':  connection_map(spaces),
                 'spacesPolygons': spaces_polygons,
-                'doorsLocations': doors_locations(spaces, rel_space_boundary)
+                'doorsPolygons': doors_polygons(spaces, rel_space_boundary)
             }
             if x_min is None or xi < x_min:
                 x_min = xi

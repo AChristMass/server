@@ -66,8 +66,8 @@ def spaces_polygons_data(spaces, rel_space_boundary):
 
 
 
-def doors_locations(spaces, rel_space_boundary):
-    doors_l = {}
+def doors_polygons(spaces, rel_space_boundary):
+    doors_polys = {}
     for rel in rel_space_boundary:
         door = rel.RelatedBuildingElement
         if rel.RelatingSpace not in spaces or door is None or not door.is_a('IfcDoor'):
@@ -75,12 +75,12 @@ def doors_locations(spaces, rel_space_boundary):
         surface = rel.ConnectionGeometry.SurfaceOnRelatingElement
         if surface.is_a("IfcSurfaceOfLinearExtrusion"):
             profile = surface.SweptCurve
-            doors_l[door.GlobalId] = doors_l.get(door.GlobalId, list())
-            for pt in profile.Curve.Points:
-                doors_l[door.GlobalId].append(pt.Coordinates[:2])
-    for doorId in doors_l:
-        doors_l[doorId] = get_middle_point(doors_l[doorId])
-    return doors_l
+            doors_polys[door.GlobalId] = doors_polys.get(door.GlobalId, list())
+            doors_polys[door.GlobalId].append(profile.Curve)
+    for door_id in doors_polys:
+        doors_polys[door_id] = sorted(doors_polys[door_id], key=lambda curve: curve.id())
+        doors_polys[door_id] = [p.Coordinates[:2] for curve in doors_polys[door_id] for p in curve.Points]
+    return doors_polys
 
 
 
