@@ -1,9 +1,9 @@
 import json
 from json import JSONDecodeError
-
+from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
-from robot.models import RobotModel, ROBOT_TYPES
+from robot.models import ROBOT_TYPES, RobotModel
 
 
 
@@ -15,7 +15,6 @@ class RobotConsumer(WebsocketConsumer):
     
     
     def connect(self):
-        print("AAAAA")
         self.accept()
     
     
@@ -39,12 +38,19 @@ class RobotConsumer(WebsocketConsumer):
                 self.model = RobotModel.objects.get(uuid=data["uuid"])
             except RobotModel.DoesNotExist:
                 self.model = RobotModel.objects.create(uuid=data["uuid"], type=data["type"])
-            self.model.connect()
+            self.model.connect(self.channel_name)
+            async_to_sync(self.channel_layer.group_add)(str(self.model.uuid), self.channel_name)
             self.send(text_data="ok")
         else:
-            pass  # TODO
+            print(f"Robot {self.model.uuid} sent : {text_data}")
+            # TODO com with robot
     
     
     def disconnect(self, code):
         if self.model:
+            async_to_sync(self.channel_layer.group_discard)(str(self.model.uuid), self.channel_name)
             self.model.disconnect()
+            
+    def mission(self, event):
+        message = event["text_data"]
+        self.send(text_data=message)

@@ -1,5 +1,5 @@
-from django import views
 from django.http import HttpResponse, JsonResponse
+from django.views import View
 from django.views.generic import ListView
 
 from ifc.models import IfcModel, PositionModel
@@ -8,7 +8,7 @@ from robot.models import RobotModel
 
 
 
-class RobotView(views.View):
+class RobotView(View):
     
     def get(self, request):
         try:

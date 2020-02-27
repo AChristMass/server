@@ -8,6 +8,7 @@ import websockets
 async def main_loop(ws):
     while True:
         data = await ws.recv()
+        print(data)
 
 
 

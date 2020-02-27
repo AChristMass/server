@@ -1,3 +1,4 @@
+asgiref
 django
 psycopg2
 wheel

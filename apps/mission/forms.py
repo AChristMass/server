@@ -1,4 +1,5 @@
-from django.forms import Form, CharField, IntegerField
+from django.forms import Form, CharField, IntegerField, UUIDField
+
 
 
 class DeplacementMissionForm(Form):
@@ -6,3 +7,8 @@ class DeplacementMissionForm(Form):
     floor = CharField(max_length=100)
     start_space = CharField(max_length=100)
     end_space = CharField(max_length=100)
+
+
+
+class SendMissionForm(Form):
+    robot_uuid = UUIDField()

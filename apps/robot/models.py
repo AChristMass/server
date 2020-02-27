@@ -26,17 +26,19 @@ class RobotModel(models.Model):
     type = models.CharField(null=False, choices=zip(ROBOT_TYPES.keys(), ROBOT_TYPES.values()),
                             max_length=10)
     connected = models.BooleanField(default=False)
+    channel_name = models.CharField(null=False, max_length=64)
     status = models.ForeignKey(RobotStatusModel, on_delete=models.CASCADE, null=True)
     
     
-    def connect(self):
-        logger.log(logging.INFO, f"Robot connected : {self.uuid}")
+    def connect(self, channel_name):
+        logger.log(logging.WARNING, f"Robot connected : {self.uuid}")
+        self.channel_name = channel_name
         self.connected = True
         self.save()
     
     
     def disconnect(self):
-        logger.log(logging.INFO, f"Robot disconnected : {self.uuid}")
+        logger.log(logging.WARNING, f"Robot disconnected : {self.uuid}")
         self.connected = False
         self.save()
     

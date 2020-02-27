@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import logging
 import os
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IFC_FILES_DIR = os.path.join(BASE_DIR, "RobotMissionIfc")
@@ -24,7 +25,7 @@ IFC_FILES_DIR = os.path.join(BASE_DIR, "RobotMissionIfc")
 SECRET_KEY = '_ed^#1$q9@o)y1+)$8@duvkq3a+u(i@79r!atb#-32qw-vphh1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -59,10 +60,10 @@ ROOT_URLCONF = 'robotmissions.urls'
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'BACKEND':  'django.template.backends.django.DjangoTemplates',
+        'DIRS':     [],
         'APP_DIRS': True,
-        'OPTIONS': {
+        'OPTIONS':  {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
@@ -81,12 +82,12 @@ ASGI_APPLICATION = "robotmissions.routing.application"
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'robotmissions_db',
-        'USER': 'robotmissions_user',
+        'ENGINE':   'django.db.backends.postgresql_psycopg2',
+        'NAME':     'robotmissions_db',
+        'USER':     'robotmissions_user',
         'PASSWORD': 'missions',
-        'HOST': 'localhost',
-        'PORT': '',
+        'HOST':     'localhost',
+        'PORT':     '',
     }
 }
 
@@ -107,6 +108,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 try:
     from robotmissions.config import *
