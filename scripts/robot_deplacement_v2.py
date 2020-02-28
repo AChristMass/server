@@ -1,8 +1,11 @@
 from time import sleep
 
-import ev3dev.ev3 as ev3
+from ev3dev2.motor import OUTPUT_A, OUTPUT_B, MoveTank, SpeedPercent, follow_for_ms, MoveSteering
+from ev3dev2.sensor.lego import GyroSensor
+from ev3dev2.sensor import INPUT_2
 
-
+MOVE_TANK = MoveTank(OUTPUT_A, OUTPUT_B)
+MOVE_STEERING = MoveSteering()
 DEGREE_SUCCESS_RATE = 0.92
 
 METER_IN_MS = 8200
@@ -19,7 +22,7 @@ RIGHT = ev3.LargeMotor('outA')
 LEFT.reset()
 RIGHT.reset()
 
-GYRO = ev3.GyroSensor()
+GYRO = GyroSensor(INPUT_2)
 GYRO.mode = 'GYRO-ANG'
 
 SPEED = 250
@@ -27,8 +30,7 @@ SPEED = 250
 
 
 def reset_gyro():
-    GYRO.mode = 'GYRO-RATE'
-    GYRO.mode = 'GYRO-ANG'
+    GYRO.reset()
 
 
 
@@ -39,17 +41,11 @@ def set_succ_rate(succ_rate):
 
 
 def turn(d):
-    diff = DEGREE_SUCCESS_RATE * d
-    target = GYRO.angle + diff
-    motor, motor_inv = (RIGHT, LEFT) if diff < 0 else (LEFT, RIGHT)
+    delta = DEGREE_SUCCESS_RATE * d
+    motor, motor_inv = (RIGHT, LEFT) if delta < 0 else (LEFT, RIGHT)
     motor.run_forever(speed_sp=SPEED)
     motor_inv.run_forever(speed_sp=-SPEED)
-    if diff > 0:
-        while GYRO.angle <= target:
-            pass
-    else:
-        while GYRO.angle >= target:
-            pass
+    GYRO.wait_until_angle_changed_by(delta)
     motor.stop(stop_action=BRAKE_TYPE)
     motor_inv.stop(stop_action=BRAKE_TYPE)
 
@@ -78,7 +74,7 @@ def print_state():
 
 
 
-def _parse_actions(txt):
+def _parse_path(txt):
     path = []
     elem_list = txt.replace('(', '').split('),')
     for elem in elem_list:
@@ -90,7 +86,7 @@ def _parse_actions(txt):
 
 
 
-def perform_actions(actions):
+def do_actions(actions):
     for action, arg in actions:
         if action == 'T':
             print("turning on " + str(arg) + "deg")
@@ -148,9 +144,9 @@ if __name__ == '__main__':
             else:
                 BRAKE_TYPE = brake_choice
         elif choice in ['p', 'P']:
-            actions = _parse_actions(input(
+            path = parse_path(input(
                 'Enter path, (ex "(\'T\', -90), (\'M\', 300.0), (\'T\', -45), (\'M\', 424.2)") :'))
-            perform_actions(actions)
+            do_path(path)
         else:
             print("No valid choice, quitting ...")
             break
