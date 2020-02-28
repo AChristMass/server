@@ -79,6 +79,6 @@ class SendMissionView(View):
             
             layer = get_channel_layer()
             async_to_sync(layer.group_send)(str(robot.uuid),
-                                            {"type": "mission", "text_data": str(actions)})
+                                            {"type": "mission", "text_data": '{"actions":'+str(actions)+'}'})
             return HttpResponse(status=200, content="ok")
         return HttpResponse(status=400, content=form.errors)
