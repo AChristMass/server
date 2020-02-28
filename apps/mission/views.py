@@ -1,3 +1,5 @@
+import json
+
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.conf import settings
@@ -77,8 +79,11 @@ class SendMissionView(View):
             
             actions = actions_from_ifc(mission.ifc.id, mission.floor, start, end, robot_config)
             
+            data = {
+                "actions": actions
+            }
             layer = get_channel_layer()
             async_to_sync(layer.group_send)(str(robot.uuid),
-                                            {"type": "mission", "text_data": '{"actions":'+str(actions)+'}'})
+                                            {"type": "mission", "text_data": json.dumps(data)})
             return HttpResponse(status=200, content="ok")
         return HttpResponse(status=400, content=form.errors)
