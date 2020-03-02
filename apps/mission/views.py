@@ -3,6 +3,7 @@ import json
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.conf import settings
+from django.forms import model_to_dict
 from django.http import HttpResponse, JsonResponse
 from django.views import View
 from django.views.generic import ListView
@@ -17,30 +18,63 @@ from robot.models import RobotModel
 
 class DeplacementMissionView(View):
     
+    def get(self, request, pk):
+        try:
+            mission = DeplacementMissionModel.objects.get(pk=pk)
+            return JsonResponse(status=200, data=model_to_dict(mission))
+        except DeplacementMissionModel.DoesNotExist:
+            return HttpResponse(status=404, content="Mission does not exist")
+    
+    
     def post(self, request):
         form = DeplacementMissionForm(request.POST)
         if form.is_valid():
             try:
                 ifc = IfcModel.objects.get(pk=request.POST['ifc_id'])
-                DeplacementMissionModel(
-                    ifc=ifc,
-                    floor=form.cleaned_data["floor"],
-                    start_space=form.cleaned_data["start_space"],
-                    end_space=form.cleaned_data["end_space"]).save()
-                return HttpResponse(status=200, content="ok")
+                start_x = form.cleaned_data["start_x"]
+                start_y = form.cleaned_data["start_y"]
+                end_x = form.cleaned_data["end_x"]
+                end_y = form.cleaned_data["end_y"]
+                floor = form.cleaned_data["floor"]
+                ifc_data = json.loads(ifc.data)
+                if floor not in ifc_data:
+                    return HttpResponse(status=404, content="floor does not exist")
+                if start_x < ifc_data["x_min"] or start_x > ifc_data["x_max"]:
+                    return HttpResponse(status=400, content="invalid start_x")
+                if start_y < ifc_data["y_min"] or start_y > ifc_data["y_max"]:
+                    return HttpResponse(status=400, content="invalid start_y")
+                if end_x < ifc_data["x_min"] or end_x > ifc_data["x_max"]:
+                    return HttpResponse(status=400, content="invalid end_x")
+                if end_y < ifc_data["y_min"] or end_y > ifc_data["y_max"]:
+                    return HttpResponse(status=400, content="invalid end_y")
+                mission = DeplacementMissionModel.objects.create(
+                    ifc=ifc, floor=form.cleaned_data["floor"],
+                    start_x=start_x, start_y=start_y,
+                    end_x=end_x, end_y=end_y)
+                return JsonResponse(status=200, data={"id": mission.id})
             except IfcModel.DoesNotExist:
                 return HttpResponse(status=404, content="Ifc does not exist")
         return HttpResponse(status=400, content=str(form.errors))
     
     
-    def put(self, request):
-        mission_id = request.PUT['mission_id']
+    def put(self, request, pk):
         try:
-            mission = DeplacementMissionModel.objects.get(pk=mission_id)
-            mission.floor = request.PUT['floor']
-            mission.start_space = request.PUT['start_space']
-            mission.end_space = request.PUT['end_space']
+            mission = DeplacementMissionModel.objects.get(pk=pk)
+            floor = request.PUT['floor']
+            ifc_data = json.loads(mission.ifc.data)
+            if floor not in ifc_data:
+                return HttpResponse(status=404, content="floor does not exist")
+            mission.floor = floor
             mission.save()
+            return HttpResponse(status=200, content="ok")
+        except DeplacementMissionModel.DoesNotExist:
+            return HttpResponse(status=404, content="Mission does not exist")
+    
+    
+    def delete(self, request, pk):
+        try:
+            mission = DeplacementMissionModel.objects.get(pk=pk)
+            mission.delete()
             return HttpResponse(status=200, content="ok")
         except DeplacementMissionModel.DoesNotExist:
             return HttpResponse(status=404, content="Mission does not exist")

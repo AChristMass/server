@@ -1,7 +1,7 @@
 from channels.routing import ProtocolTypeRouter, URLRouter
 from django.conf.urls import url
 
-from robot.connect import RobotConsumer
+from robot.websocket import RobotConsumer
 
 
 application = ProtocolTypeRouter({

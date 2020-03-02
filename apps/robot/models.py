@@ -28,6 +28,10 @@ class RobotModel(models.Model):
     status = models.ForeignKey(RobotStatusModel, on_delete=models.CASCADE, null=True)
     
     
+    def delete(self, using=None, keep_parents=False):
+        super().delete()
+        
+    
     def connect(self, channel_name):
         logger.log(logging.WARNING, f"Robot connected : {self.uuid}")
         self.channel_name = channel_name
@@ -43,6 +47,10 @@ class RobotModel(models.Model):
     
     def to_dict(self):
         return dict(
-            uuidid=self.pk,
+            uuid=self.pk,
             connected=self.connected,
             status=self.status.to_dict() if self.status else None)
+
+    @classmethod
+    def robots_connected(cls):
+        return cls.objects.all().filter(connected=True)
