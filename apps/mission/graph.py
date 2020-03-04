@@ -149,10 +149,10 @@ def create_actions_path(path, directions, all_actions):
 
 def create_matrix(ifc, floor, cell_div, stretch_size):
     data = json.loads(ifc.data)
-    spaces_polygons = data[floor]["spacesPolygons"]
-    doors_polygons = data[floor]["doorsPolygons"]
-    width = int(abs(data["x_max"] - data["x_min"]))
-    height = int(abs(data["y_max"] - data["y_min"]))
+    spaces_polygons = data["floors"][floor]["spacesPolygons"]
+    doors_polygons = data["floors"][floor]["doorsPolygons"]
+    width = int(abs(data["dimensions"]["xMax"] - data["dimensions"]["xMin"]))
+    height = int(abs(data["dimensions"]["yMax"] - data["dimensions"]["yMin"]))
     m = [[0] * (width+1) for _ in range(height+1)]
     walls_points = []
     # add walls

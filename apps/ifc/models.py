@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 
-from ifc.parsing import connection_map, doors_polygons, spaces_infos, spaces_polygons_data
+from ifc.parsing import doors_polygons, spaces_infos, spaces_polygons_data
 
 
 
@@ -29,11 +29,11 @@ class IfcModel(models.Model):
         x_max = None
         y_min = None
         y_max = None
+        data["floors"] = {}
         for (floor, spaces) in floors_spaces:
             spaces_polygons, xi, xa, yi, ya = spaces_polygons_data(spaces, rel_space_boundary)
-            data[floor.Name] = {
+            data["floors"][floor.Name] = {
                 'spacesInfos':    spaces_infos(spaces),
-                'connectionMap':  connection_map(spaces),
                 'spacesPolygons': spaces_polygons,
                 'doorsPolygons':  doors_polygons(spaces, rel_space_boundary)
             }
@@ -45,10 +45,12 @@ class IfcModel(models.Model):
                 y_min = yi
             if y_max is None or ya > y_max:
                 y_max = ya
-        data["x_min"] = x_min
-        data["x_max"] = x_max
-        data["y_min"] = y_min
-        data["y_max"] = y_max
+        data["dimensions"] = {
+            "xMin": x_min,
+            "xMax": x_max,
+            "yMin": y_min,
+            "yMax": y_max
+        }
         return data
     
     
