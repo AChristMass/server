@@ -65,6 +65,6 @@ class IfcModel(models.Model):
         return dict(
             id=self.pk,
             name=self.name,
-            data=json.loads(self.data),
+            data=self.data,
             filePath=self.file_path
         )
