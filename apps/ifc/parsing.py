@@ -1,38 +1,3 @@
-def connection_map(spaces):
-    doors_dict = {}
-    for space in spaces:
-        boundaries = space.BoundedBy
-        for boundary in boundaries:
-            related = boundary.RelatedBuildingElement
-            if related is None or not related.is_a("IfcDoor"):
-                continue
-            door = related
-            if not doors_dict.get(door.GlobalId, False):
-                # set value of globalId as tuple of (door, associatedSpaces)
-                doors_dict[door.GlobalId] = (door, [space])
-            else:
-                # set space as doors associated spaces
-                doors_dict[door.GlobalId][1].append(space)
-    
-    c_map = {}
-    for door, associatedSpaces in doors_dict.values():
-        door_id = door.GlobalId
-        for i in range(len(associatedSpaces) - 1):
-            iID = associatedSpaces[i].GlobalId
-            for j in range(i + 1, len(associatedSpaces)):
-                jID = associatedSpaces[j].GlobalId
-                
-                c_map[iID] = c_map.get(iID, {})
-                c_map[iID][jID] = c_map[iID].get(jID, list())
-                c_map[iID][jID].append(door_id)
-                
-                c_map[jID] = c_map.get(jID, {})
-                c_map[jID][iID] = c_map[jID].get(iID, list())
-                c_map[jID][iID].append(door_id)
-    return c_map
-
-
-
 def spaces_polygons_data(spaces, rel_space_boundary):
     poly_map = {}
     x_min = x_max = y_min = y_max = None
