@@ -1,3 +1,5 @@
+import json
+
 import ifcopenshell
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
@@ -61,6 +63,6 @@ class IfcModel(models.Model):
         return dict(
             id=self.pk,
             name=self.name,
-            data=self.data,
+            data=json.loads(self.data),
             filePath=self.file_path
         )
