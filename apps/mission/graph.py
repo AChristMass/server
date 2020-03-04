@@ -151,8 +151,8 @@ def create_matrix(ifc, floor, cell_div, stretch_size):
     data = json.loads(ifc.data)
     spaces_polygons = data["floors"][floor]["spacesPolygons"]
     doors_polygons = data["floors"][floor]["doorsPolygons"]
-    width = int(abs(data["dimensions"]["x_max"] - data["dimensions"]["x_min"]))
-    height = int(abs(data["dimensions"]["y_max"] - data["dimensions"]["y_min"]))
+    width = int(abs(data["dimensions"]["xMax"] - data["dimensions"]["xMin"]))
+    height = int(abs(data["dimensions"]["yMax"] - data["dimensions"]["yMin"]))
     m = [[0] * (width+1) for _ in range(height+1)]
     walls_points = []
     # add walls

@@ -46,10 +46,10 @@ class IfcModel(models.Model):
             if y_max is None or ya > y_max:
                 y_max = ya
         data["dimensions"] = {
-            "x_min": x_min,
-            "x_max": x_max,
-            "y_min": y_min,
-            "y_max": y_max
+            "xMin": x_min,
+            "xMax": x_max,
+            "yMin": y_min,
+            "yMax": y_max
         }
         return data
     
