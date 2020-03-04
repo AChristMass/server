@@ -61,12 +61,16 @@ class IfcModel(models.Model):
     
     
     def to_dict(self):
-        data = self.data
-        if type(self.data) is not dict:
-            data = json.loads(data)
         return dict(
             id=self.pk,
             name=self.name,
-            data=data,
+            data=self.get_data(),
             filePath=self.file_path
         )
+    
+    
+    def get_data(self):
+        data = self.data
+        if type(self.data) is not dict:
+            data = json.loads(data)
+        return data

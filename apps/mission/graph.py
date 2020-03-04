@@ -1,8 +1,6 @@
-import json
 import logging
-from math import sqrt
-
 import networkx as nx
+from math import sqrt
 
 from ifc.models import IfcModel
 
@@ -148,12 +146,12 @@ def create_actions_path(path, directions, all_actions):
 
 
 def create_matrix(ifc, floor, cell_div, stretch_size):
-    data = json.loads(ifc.data)
+    data = ifc.get_data()
     spaces_polygons = data["floors"][floor]["spacesPolygons"]
     doors_polygons = data["floors"][floor]["doorsPolygons"]
     width = int(abs(data["dimensions"]["xMax"] - data["dimensions"]["xMin"]))
     height = int(abs(data["dimensions"]["yMax"] - data["dimensions"]["yMin"]))
-    m = [[0] * (width+1) for _ in range(height+1)]
+    m = [[0] * (width + 1) for _ in range(height + 1)]
     walls_points = []
     # add walls
     for x, y in points_on_polygons_gen(spaces_polygons.values()):
@@ -219,5 +217,5 @@ def actions_from_ifc(ifc_id, floor, source, target, robot_config):
     # find path between two points
     path = nx.algorithms.shortest_paths.generic.shortest_path(
         graph, source=source, target=target, weight="weight")
-
+    
     return create_actions_path(path, directions, actions)
