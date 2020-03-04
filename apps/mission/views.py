@@ -36,7 +36,7 @@ class DeplacementMissionView(View):
                 end_x = form.cleaned_data["end_x"]
                 end_y = form.cleaned_data["end_y"]
                 floor = form.cleaned_data["floor"]
-                ifc_data = json.loads(ifc.data)
+                ifc_data = ifc.get_data()
                 if floor not in ifc_data:
                     return HttpResponse(status=404, content="floor does not exist")
                 if start_x < ifc_data["x_min"] or start_x > ifc_data["x_max"]:
@@ -61,7 +61,7 @@ class DeplacementMissionView(View):
         try:
             mission = DeplacementMissionModel.objects.get(pk=pk)
             floor = request.PUT['floor']
-            ifc_data = json.loads(mission.ifc.data)
+            ifc_data = mission.ifc.get_data()
             if floor not in ifc_data:
                 return HttpResponse(status=404, content="floor does not exist")
             mission.floor = floor
