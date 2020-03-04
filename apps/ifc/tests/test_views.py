@@ -36,20 +36,20 @@ class IfcViewTestCase(TestCase):
     
     
     def test_get(self):
-        response = self.client.get(reverse("ifc:single", args=[1]))
+        response = self.client.get(reverse("ifc:main_pk", args=[1]))
         data = '"name": "test1", "data": {"testk": "testv"},'
         self.assertContains(response, data, status_code=200)
     
     
     def test_get_not_exist(self):
-        response = self.client.get(reverse("ifc:single", args=[0]))
+        response = self.client.get(reverse("ifc:main_pk", args=[0]))
         self.assertContains(response, "Ifc does not exist", status_code=404)
     
     
     def test_post(self):
         with open(IFC_FILE_TEST_PATH) as ifc:
             data = {"name": "test_post", "ifc_file": ifc}
-            response = self.client.post(reverse("ifc:create_ifc"), data)
+            response = self.client.post(reverse("ifc:main"), data)
             self.assertContains(response, "id", status_code=200)
         data = json.loads(response.content.decode())
         with open(os.path.join(settings.IFC_FILES_DIR, data["path"])) as f1, open(
@@ -58,13 +58,13 @@ class IfcViewTestCase(TestCase):
         
         with open(IFC_FILE_TEST_PATH) as ifc:
             data = {"name": "test_post", "ifc_file": ifc}
-            response = self.client.post(reverse("ifc:create_ifc"), data)
+            response = self.client.post(reverse("ifc:main"), data)
             self.assertContains(response, "Name taken", status_code=409)
     
     
     def test_post_error_form(self):
         data = {"name": "test_post"}
-        response = self.client.post(reverse("ifc:create_ifc"), data)
+        response = self.client.post(reverse("ifc:main"), data)
         self.assertContains(response, "This field is required.", status_code=400)
     
     
@@ -75,11 +75,11 @@ class IfcViewTestCase(TestCase):
     
     
     def test_put(self):
-        response = self.client.put(reverse("ifc:single", args=[2]), data={"name": "untest"})
+        response = self.client.put(reverse("ifc:main_pk", args=[2]), data={"name": "untest"})
         # TODO
     
     
     def test_put_error_form(self):
         data = {"name": "a"}
-        response = self.client.put(reverse("ifc:single", args=[2]), data)
+        response = self.client.put(reverse("ifc:main_pk", args=[2]), data)
         # TODO

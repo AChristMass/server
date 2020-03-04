@@ -1,4 +1,4 @@
-from django.http import HttpResponse, JsonResponse, QueryDict
+from django.http import HttpResponse, JsonResponse
 from django.views import View
 from django.views.generic import ListView
 

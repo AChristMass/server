@@ -1,5 +1,3 @@
-import json
-
 import ifcopenshell
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
@@ -35,7 +33,7 @@ class IfcModel(models.Model):
                 'spacesInfos':    spaces_infos(spaces),
                 'connectionMap':  connection_map(spaces),
                 'spacesPolygons': spaces_polygons,
-                'doorsPolygons': doors_polygons(spaces, rel_space_boundary)
+                'doorsPolygons':  doors_polygons(spaces, rel_space_boundary)
             }
             if x_min is None or xi < x_min:
                 x_min = xi
@@ -49,7 +47,7 @@ class IfcModel(models.Model):
         data["x_max"] = x_max
         data["y_min"] = y_min
         data["y_max"] = y_max
-        return json.dumps(data)
+        return data
     
     
     @classmethod
@@ -59,6 +57,7 @@ class IfcModel(models.Model):
     
     
     def to_dict(self):
+        print(type(self.data))
         return dict(
             id=self.pk,
             name=self.name,
