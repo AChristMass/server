@@ -37,15 +37,15 @@ class DeplacementMissionView(View):
                 end_y = form.cleaned_data["end_y"]
                 floor = form.cleaned_data["floor"]
                 ifc_data = ifc.get_data()
-                if floor not in ifc_data:
+                if floor not in ifc_data["floors"]:
                     return HttpResponse(status=404, content="floor does not exist")
-                if start_x < ifc_data["x_min"] or start_x > ifc_data["x_max"]:
+                if start_x < ifc_data["dimensions"]["xMin"] or start_x > ifc_data["dimensions"]["xMax"]:
                     return HttpResponse(status=400, content="invalid start_x")
-                if start_y < ifc_data["y_min"] or start_y > ifc_data["y_max"]:
+                if start_y < ifc_data["dimensions"]["yMin"] or start_y > ifc_data["dimensions"]["yMax"]:
                     return HttpResponse(status=400, content="invalid start_y")
-                if end_x < ifc_data["x_min"] or end_x > ifc_data["x_max"]:
+                if end_x < ifc_data["dimensions"]["xMin"] or end_x > ifc_data["dimensions"]["xMax"]:
                     return HttpResponse(status=400, content="invalid end_x")
-                if end_y < ifc_data["y_min"] or end_y > ifc_data["y_max"]:
+                if end_y < ifc_data["dimensions"]["yMin"] or end_y > ifc_data["dimensions"]["yMax"]:
                     return HttpResponse(status=400, content="invalid end_y")
                 mission = DeplacementMissionModel.objects.create(
                     ifc=ifc, floor=form.cleaned_data["floor"],
