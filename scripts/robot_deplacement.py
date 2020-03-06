@@ -4,7 +4,7 @@ import ev3dev.ev3 as ev3
 
 
 DEGREE_SUCCESS_RATE = 0.92
-
+DEGREE_SUCCESS_RATE_NEG = 0.88
 METER_IN_MS = 8200
 
 BRAKE_TYPES_LIST = [
@@ -37,9 +37,17 @@ def set_succ_rate(succ_rate):
     DEGREE_SUCCESS_RATE = succ_rate
 
 
+def set_succ_rate_neg(succ_rate):
+    global DEGREE_SUCCESS_RATE_NEG
+    DEGREE_SUCCESS_RATE_NEG = succ_rate
+
+
 
 def turn(d):
-    diff = DEGREE_SUCCESS_RATE * d
+    if d > 0:
+        diff = DEGREE_SUCCESS_RATE * d
+    else :
+        diff = DEGREE_SUCCESS_RATE_NEG * d
     target = GYRO.angle + diff
     motor, motor_inv = (RIGHT, LEFT) if diff < 0 else (LEFT, RIGHT)
     motor.run_forever(speed_sp=SPEED)
@@ -111,6 +119,7 @@ if __name__ == '__main__':
         "- FD to move forward (by distance in millimeters)",
         "- ST to print state",
         "- ER to change degree success rate",
+        "- ERN to change negative degree success rate",
         "- T to turn",
         "- R to reset",
         "- S to change speed",
@@ -128,6 +137,8 @@ if __name__ == '__main__':
             forward_by_millimeter(dist_millimeters)
         elif choice in ['er', 'Er', 'ER', 'eR']:
             set_succ_rate(float(input('Enter new degree turn success rate : ')))
+        elif choice in ['ern', 'ERN']:
+            set_succ_rate_neg(float(input('Enter new negative degree turn success rate : ')))
         elif choice in ['st', 'ST', 'St', 'sT']:
             print_state()
         elif choice in ['t', 'T']:
