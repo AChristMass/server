@@ -62,7 +62,7 @@ class IfcView(views.View):
                 ifc_json = IfcModel.objects.filter(pk=ifc_model.pk).values().first()
                 return JsonResponse(status=200, data=ifc_json)
             except IfcModel.DoesNotExist:
-                return HttpResponse(status=400, content="Ifc does not exist")
+                return HttpResponse(status=404, content="Ifc does not exist")
         return HttpResponse(status=400, content=str(form.errors))
 
 
