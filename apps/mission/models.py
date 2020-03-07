@@ -11,3 +11,15 @@ class DeplacementMissionModel(models.Model):
     start_y = models.IntegerField(null=False)
     end_x = models.IntegerField(null=False)
     end_y = models.IntegerField(null=False)
+    
+    
+    def to_dict(self):
+        return dict(
+            id=self.pk,
+            ifc=self.ifc.to_dict(),
+            floor=self.floor,
+            start_x=self.start_x,
+            start_y=self.start_y,
+            end_x=self.end_x,
+            end_y=self.end_y
+        )

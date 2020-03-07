@@ -25,51 +25,46 @@ def stretch(matrix, x, y, dist, val=1):
 
 
 
-def points_on_polygons_gen(all_polygons):
+def points_on_polygons_gen(all_polygons, x_min, y_min):
     for polygons in all_polygons:
         for ipt in range(-1, len(polygons) - 1):
             cur_x, cur_y = int(polygons[ipt][0]), int(polygons[ipt][1])
             nxt_x, nxt_y = int(polygons[ipt + 1][0]), int(polygons[ipt + 1][1])
             if cur_y == nxt_y:
                 for pace_x in range(min(cur_x, nxt_x), max(cur_x, nxt_x)):
-                    yield pace_x, -cur_y
+                    yield pace_x - x_min, cur_y - y_min
             else:
                 for pace_y in range(min(cur_y, nxt_y), max(cur_y, nxt_y)):
-                    yield cur_x, -pace_y
+                    yield cur_x - x_min, pace_y - y_min
 
 
 
-def create_graph(data, size):
+def create_graph(data, size, x_min, y_min):
     graph = nx.Graph()
+    add_edge = lambda x1, y1, x2, y2, w: graph.add_edge((x1 * size + x_min, y1 * size + y_min),
+                                                        (x2 * size + x_min, y2 * size + y_min),
+                                                        weight=w)
     
     for y in range(len(data)):
         for x in range(len(data[y])):
             if not data[y][x]:
                 if y + 1 < len(data) and not data[y + 1][x]:
-                    graph.add_edge((x * size, y * size),
-                                   (x * size, (y + 1) * size), weight=1)
+                    add_edge(x, y, x, (y + 1), 1)
                 if y - 1 >= 0 and not data[y - 1][x]:
-                    graph.add_edge((x * size, y * size),
-                                   (x * size, (y - 1) * size), weight=1)
+                    add_edge(x, y, x, (y - 1), 1)
                 if x + 1 < len(data[y]) and not data[y][x + 1]:
-                    graph.add_edge((x * size, y * size),
-                                   ((x + 1) * size, y * size), weight=1)
+                    add_edge(x, y, (x + 1), y, 1)
                 if x - 1 >= 0 and not data[y][x - 1]:
-                    graph.add_edge((x * size, y * size),
-                                   ((x - 1) * size, y * size), weight=1)
+                    add_edge(x, y, (x - 1), y, 1)
                 # diagonals
                 if y + 1 < len(data) and x + 1 < len(data[y]) and not data[y + 1][x + 1]:
-                    graph.add_edge((x * size, y * size),
-                                   ((x + 1) * size, (y + 1) * size), weight=sqrt(2))
+                    add_edge(x, y, (x + 1), (y + 1), sqrt(2))
                 if y - 1 >= 0 and x + 1 < len(data[y]) and not data[y - 1][x + 1]:
-                    graph.add_edge((x * size, y * size),
-                                   ((x + 1) * size, (y - 1) * size), weight=sqrt(2))
+                    add_edge(x, y, (x + 1), (y - 1), sqrt(2))
                 if y + 1 < len(data) and x - 1 >= 0 and not data[y + 1][x - 1]:
-                    graph.add_edge((x * size, y * size),
-                                   ((x - 1) * size, (y + 1) * size), weight=sqrt(2))
+                    add_edge(x, y, (x - 1), (y + 1), sqrt(2))
                 if y - 1 >= 0 and x - 1 >= 0 and not data[y - 1][x - 1]:
-                    graph.add_edge((x * size, y * size),
-                                   ((x - 1) * size, (y - 1) * size), weight=sqrt(2))
+                    add_edge(x, y, (x - 1), (y - 1), sqrt(2))
     return graph
 
 
@@ -145,23 +140,25 @@ def create_actions_path(path, directions, all_actions):
 
 
 
-def create_matrix(ifc, floor, cell_div, stretch_size):
-    data = ifc.get_data()
+def create_matrix(ifc_data, floor, cell_div, stretch_size):
+    data = ifc_data
     spaces_polygons = data["floors"][floor]["spacesPolygons"]
     doors_polygons = data["floors"][floor]["doorsPolygons"]
-    width = int(abs(data["dimensions"]["xMax"] - data["dimensions"]["xMin"]))
-    height = int(abs(data["dimensions"]["yMax"] - data["dimensions"]["yMin"]))
+    x_min = int(data["dimensions"]["xMin"])
+    y_min = int(data["dimensions"]["yMin"])
+    width = int(data["dimensions"]["xMax"] - data["dimensions"]["xMin"])
+    height = int(data["dimensions"]["yMax"] - data["dimensions"]["yMin"])
     m = [[0] * (width + 1) for _ in range(height + 1)]
     walls_points = []
     # add walls
-    for x, y in points_on_polygons_gen(spaces_polygons.values()):
+    for x, y in points_on_polygons_gen(spaces_polygons.values(), x_min, y_min):
         m[y][x] = 1
         walls_points.append((x, y))
     
     # remove points on doors to create passages
     door_way_points = []
     door_board_points = []
-    for x, y in points_on_polygons_gen(doors_polygons.values()):
+    for x, y in points_on_polygons_gen(doors_polygons.values(), x_min, y_min):
         if m[y][x]:
             door_way_points.append((x, y))
             m[y][x] = 0
@@ -170,7 +167,7 @@ def create_matrix(ifc, floor, cell_div, stretch_size):
             m[y][x] = 1
     
     # stretch all walls
-    for x, y in points_on_polygons_gen(spaces_polygons.values()):
+    for x, y in points_on_polygons_gen(spaces_polygons.values(), x_min, y_min):
         stretch(m, x, y, stretch_size)
     
     # stretch door boards
@@ -189,9 +186,7 @@ def create_matrix(ifc, floor, cell_div, stretch_size):
 
 
 
-def actions_from_ifc(ifc_id, floor, source, target, robot_config):
-    ifc = IfcModel.objects.get(id=ifc_id)
-    
+def actions_from_ifc(ifc_data, floor, source, target, robot_config):
     cell_div = robot_config["cell_div"]
     stretch_size = robot_config["stretch_size"]
     directions = {
@@ -211,10 +206,11 @@ def actions_from_ifc(ifc_id, floor, source, target, robot_config):
     }
     
     # create final graph
-    m = create_matrix(ifc, floor, cell_div, stretch_size)
-    graph = create_graph(m, cell_div)
-    
+    m = create_matrix(ifc_data, floor, cell_div, stretch_size)
+    graph = create_graph(m, cell_div, int(ifc_data["dimensions"]["xMin"]),
+                         int(ifc_data["dimensions"]["yMin"]))
     # find path between two points
+    
     path = nx.algorithms.shortest_paths.generic.shortest_path(
         graph, source=source, target=target, weight="weight")
     

@@ -36,19 +36,10 @@ class DeplacementMissionView(View):
                 end_x = form.cleaned_data["end_x"]
                 end_y = form.cleaned_data["end_y"]
                 floor = form.cleaned_data["floor"]
-                ifc_data = ifc.get_data()
-                if floor not in ifc_data["floors"]:
-                    return HttpResponse(status=404, content="floor does not exist")
-                if start_x < ifc_data["dimensions"]["xMin"] or start_x > ifc_data["dimensions"]["xMax"]:
-                    return HttpResponse(status=400, content="invalid start_x")
-                if start_y < ifc_data["dimensions"]["yMin"] or start_y > ifc_data["dimensions"]["yMax"]:
-                    return HttpResponse(status=400, content="invalid start_y")
-                if end_x < ifc_data["dimensions"]["xMin"] or end_x > ifc_data["dimensions"]["xMax"]:
-                    return HttpResponse(status=400, content="invalid end_x")
-                if end_y < ifc_data["dimensions"]["yMin"] or end_y > ifc_data["dimensions"]["yMax"]:
-                    return HttpResponse(status=400, content="invalid end_y")
+                if not ifc.check_position(floor, [(start_x, start_y), (end_x, end_y)]):
+                    return HttpResponse(status=400, content="invalid position")
                 mission = DeplacementMissionModel.objects.create(
-                    ifc=ifc, floor=form.cleaned_data["floor"],
+                    ifc=ifc, floor=floor,
                     start_x=start_x, start_y=start_y,
                     end_x=end_x, end_y=end_y)
                 return JsonResponse(status=200, data={"id": mission.id})
@@ -86,7 +77,10 @@ class DeplacementMissionListView(ListView):
     
     
     def get(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
+        queryset = self.get_queryset().all()
+        data = list()
+        for deplacement_mission in queryset:
+            data.append(deplacement_mission.to_dict())
         return JsonResponse(list(queryset.values()), status=200, safe=False)
 
 
@@ -111,7 +105,9 @@ class SendMissionView(View):
             start = (mission.start_x, mission.start_y)
             end = (mission.end_x, mission.end_y)
             
-            actions = actions_from_ifc(mission.ifc.id, mission.floor, start, end, robot_config)
+            # TODO modify start and end in function of robot_config (node not in path = error)
+            
+            actions = actions_from_ifc(mission.ifc.get_data(), mission.floor, start, end, robot_config)
             
             data = {
                 "actions": actions

@@ -74,3 +74,19 @@ class IfcModel(models.Model):
         if type(self.data) is not dict:
             data = json.loads(data)
         return data
+    
+    
+    def check_position(self, floor, points):
+        ifc_data = self.get_data()
+        x_min = ifc_data["dimensions"]["xMin"]
+        x_max = ifc_data["dimensions"]["xMax"]
+        y_min = ifc_data["dimensions"]["yMin"]
+        y_max = ifc_data["dimensions"]["yMax"]
+        if floor not in ifc_data["floors"]:
+            return False
+        for x, y in points:
+            if x < x_min or x > x_max:
+                return False
+            if y < y_min or y > y_max:
+                return False
+        return True
