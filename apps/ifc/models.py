@@ -64,8 +64,7 @@ class IfcModel(models.Model):
         return dict(
             id=self.pk,
             name=self.name,
-            data=self.get_data(),
-            filePath=self.file_path
+            data=self.get_data()
         )
     
     
