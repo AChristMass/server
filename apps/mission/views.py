@@ -85,7 +85,7 @@ class DeplacementMissionListView(ListView):
         data = list()
         for deplacement_mission in queryset:
             data.append(deplacement_mission.to_dict())
-        return JsonResponse(list(queryset.values()), status=200, safe=False)
+        return JsonResponse(data, status=200, safe=False)
 
 
 
