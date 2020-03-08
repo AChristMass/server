@@ -42,7 +42,7 @@ class DeplacementMissionView(View):
                     ifc=ifc, floor=floor,
                     start_x=start_x, start_y=start_y,
                     end_x=end_x, end_y=end_y)
-                return JsonResponse(status=200, data={"id": mission.id})
+                return JsonResponse(status=200, data=mission.to_dict())
             except IfcModel.DoesNotExist:
                 return HttpResponse(status=404, content="Ifc does not exist")
         return HttpResponse(status=400, content=str(form.errors))
