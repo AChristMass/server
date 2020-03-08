@@ -72,7 +72,7 @@ class IfcListView(ListView):
     
     
     def get_queryset(self):
-        return self.model.objects.filter(name__contains=self.kwargs['name'])
+        return self.model.objects.filter(name__lo=self.kwargs['name'].lower(),nam)
     
     
     def get(self, request, *args, **kwargs):

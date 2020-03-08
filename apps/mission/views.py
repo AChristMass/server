@@ -77,7 +77,7 @@ class DeplacementMissionListView(ListView):
     
     
     def get_queryset(self):
-        return self.model.objects.filter(name__contains=self.kwargs['name'])
+        return self.model.objects.filter(name__icontains=self.kwargs['name'])
     
     
     def get(self, request, *args, **kwargs):
