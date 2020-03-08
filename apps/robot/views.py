@@ -34,6 +34,10 @@ class RobotListView(ListView):
     model = RobotModel
     
     
+    def get_queryset(self):
+        return self.model.objects.filter(name__contains=self.kwargs['name'])
+    
+    
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset().all()
         data = list()

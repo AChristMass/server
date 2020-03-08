@@ -1,6 +1,7 @@
+import logging
+
 from django.conf import settings
 from django.db import models
-import logging
 
 
 logger = logging.getLogger(__name__)
@@ -20,6 +21,7 @@ class RobotStatusModel(models.Model):
 
 class RobotModel(models.Model):
     uuid = models.UUIDField(primary_key=True, null=False, editable=False)
+    name = models.CharField(max_length=50)
     type = models.CharField(null=False, choices=zip(settings.ROBOT_CONFIGS.keys(),
                                                     settings.ROBOT_CONFIGS.keys()),
                             max_length=10)
@@ -30,7 +32,7 @@ class RobotModel(models.Model):
     
     def delete(self, using=None, keep_parents=False):
         super().delete()
-        
+    
     
     def connect(self, channel_name):
         logger.log(logging.WARNING, f"Robot connected : {self.uuid}")
@@ -50,7 +52,8 @@ class RobotModel(models.Model):
             uuid=self.pk,
             connected=self.connected,
             status=self.status.to_dict() if self.status else None)
-
+    
+    
     @classmethod
     def robots_connected(cls):
         return cls.objects.all().filter(connected=True)

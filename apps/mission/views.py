@@ -76,6 +76,10 @@ class DeplacementMissionListView(ListView):
     model = DeplacementMissionModel
     
     
+    def get_queryset(self):
+        return self.model.objects.filter(name__contains=self.kwargs['name'])
+    
+    
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset().all()
         data = list()
@@ -107,7 +111,8 @@ class SendMissionView(View):
             
             # TODO modify start and end in function of robot_config (node not in path = error)
             
-            actions = actions_from_ifc(mission.ifc.get_data(), mission.floor, start, end, robot_config)
+            actions = actions_from_ifc(mission.ifc.get_data(), mission.floor, start, end,
+                                       robot_config)
             
             data = {
                 "actions": actions

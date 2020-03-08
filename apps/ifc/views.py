@@ -1,6 +1,6 @@
 import os
-
 import time
+
 from django import views
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
@@ -69,6 +69,10 @@ class IfcView(views.View):
 
 class IfcListView(ListView):
     model = IfcModel
+    
+    
+    def get_queryset(self):
+        return self.model.objects.filter(name__contains=self.kwargs['name'])
     
     
     def get(self, request, *args, **kwargs):
