@@ -17,6 +17,7 @@ class DeplacementMissionModel(models.Model):
     def to_dict(self):
         return dict(
             id=self.pk,
+            name=self.name,
             ifc=self.ifc.to_dict(),
             floor=self.floor,
             start_x=self.start_x,

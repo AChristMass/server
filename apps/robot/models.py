@@ -14,8 +14,7 @@ class RobotStatusModel(models.Model):
     
     
     def to_dict(self):
-        return dict(
-            id=self.pk, battery=self.battery, rotation=self.rotation)
+        return dict(battery=self.battery, rotation=self.rotation)
 
 
 
@@ -50,6 +49,7 @@ class RobotModel(models.Model):
     def to_dict(self):
         return dict(
             uuid=self.pk,
+            name=self.name,
             connected=self.connected,
             status=self.status.to_dict() if self.status else None)
     
