@@ -51,13 +51,19 @@ class DeplacementMissionView(View):
     def put(self, request, pk):
         try:
             mission = DeplacementMissionModel.objects.get(pk=pk)
-            floor = request.PUT['floor']
-            ifc_data = mission.ifc.get_data()
-            if floor not in ifc_data:
-                return HttpResponse(status=404, content="floor does not exist")
-            mission.floor = floor
+            
+            if request.PUT['ifc_id'] != mission.ifc.pk:
+                try :
+                    mission.ifc = IfcModel.objects.get(pk=request.PUT['ifc_id'])
+                except IfcModel.DoesNotExist:
+                    return HttpResponse(status=404, content="Ifc does not exist")
+            mission.floor = request.PUT['floor']
+            mission.start_x = request.PUT['start_x']
+            mission.start_y = request.PUT['start_y']
+            mission.end_x = request.PUT['end_x']
+            mission.end_y = request.PUT['end_y']
             mission.save()
-            return HttpResponse(status=200, content="ok")
+            return JsonResponse(status=200, data=mission.to_dict())
         except DeplacementMissionModel.DoesNotExist:
             return HttpResponse(status=404, content="Mission does not exist")
     
