@@ -186,7 +186,7 @@ def create_matrix(ifc_data, floor, cell_div, stretch_size):
 
 
 
-def actions_from_ifc(ifc_data, floor, source, target, robot_config):
+def actions_and_path_from_ifc(ifc_data, floor, source, target, robot_config):
     cell_div = robot_config["cell_div"]
     stretch_size = robot_config["stretch_size"]
     directions = {
@@ -214,4 +214,4 @@ def actions_from_ifc(ifc_data, floor, source, target, robot_config):
     path = nx.algorithms.shortest_paths.generic.shortest_path(
         graph, source=source, target=target, weight="weight")
     
-    return create_actions_path(path, directions, actions)
+    return path, create_actions_path(path, directions, actions)

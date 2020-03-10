@@ -1,6 +1,7 @@
 from django.db import models
 
 from ifc.models import IfcModel
+from robot.models import RobotModel
 
 
 
@@ -25,3 +26,13 @@ class DeplacementMissionModel(models.Model):
             end_x=self.end_x,
             end_y=self.end_y
         )
+
+
+class RunningMissionModel(models.Model):
+    mission = models.ForeignKey(DeplacementMissionModel, on_delete=models.CASCADE)
+    started_at = models.DateTimeField(auto_now_add=True)
+    ended_at = models.DateTimeField(auto_now_add=False)
+    robot = models.ForeignKey(RobotModel, on_delete=models.CASCADE)
+    is_done = models.BooleanField(default=False)
+    x = models.IntegerField(null=False)
+    y = models.IntegerField(null=False)

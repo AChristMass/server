@@ -7,25 +7,44 @@ import robot_deplacement as robot
 import websockets
 
 
+NOTIFY_MOVEMENT_EVENT = "movement_notification"
 
-def get_actions_from_data(data):
-    return json.loads(data)['actions']
+
+
+async def perform_deplacement_mission(ws, actions):
+    for action, arg in actions:
+        if action == 'T':
+            print("turning on " + str(arg) + "deg")
+            robot.turn(arg)
+        elif action == 'M':
+            print("moving forward by " + str(arg) + "mm")
+            robot.forward_by_millimeter(arg)
+            await ws.send(json.dumps({
+                "event":  NOTIFY_MOVEMENT_EVENT,
+                "isDone": False
+            }))
+        else:
+            print("unknow action '" + str(action) + "'")
+    await ws.send(json.dumps({
+        "event":  NOTIFY_MOVEMENT_EVENT,
+        "isDone": True
+    }))
 
 
 
 async def main_loop(ws):
     while True:
+        print("WAITING FOR NEW DATA")
         data = await ws.recv()
-        print(data)
-        actions = get_actions_from_data(data)
-        robot.perform_actions(actions)
-        # todo send mission performed response
+        data = json.loads(data)
+        if data["type"] == "deplacement":
+            await perform_deplacement_mission(ws, data["actions"])
 
 
 
 async def connect_robot(ip):
     uri = "ws://" + ip + "/robotsocket/"
-    print("uri : ",uri)
+    print("uri : ", uri)
     with open("conf.json", "r") as jsonfile:
         data = jsonfile.read()
     

@@ -1,5 +1,3 @@
-import json
-
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.conf import settings
@@ -9,9 +7,10 @@ from django.views import View
 from django.views.generic import ListView
 
 from ifc.models import IfcModel
+from mission import utils
 from mission.forms import DeplacementMissionForm, SendMissionForm
-from mission.graph import actions_from_ifc
-from mission.models import DeplacementMissionModel
+from mission.graph import actions_and_path_from_ifc
+from mission.models import DeplacementMissionModel, RunningMissionModel
 from robot.models import RobotModel
 
 
@@ -124,16 +123,29 @@ class SendMissionView(View):
             start = (mission.start_x, mission.start_y)
             end = (mission.end_x, mission.end_y)
             
-            # TODO modify start and end in function of robot_config (node not in path = error)
+            base = robot_config["cell_div"]
+            start = utils.round_by_base(start[0], base), utils.round_by_base(start[1], base)
+            end = utils.round_by_base(end[0], base), utils.round_by_base(end[1], base)
             
-            actions = actions_from_ifc(mission.ifc.get_data(), mission.floor, start, end,
-                                       robot_config)
+            path, actions = actions_and_path_from_ifc(mission.ifc.get_data(), mission.floor,
+                                                      start, end, robot_config)
             
             data = {
-                "actions": actions
+                "robot":  {
+                    "type": "deplacement",
+                    "actions": actions
+                },
+                "socket": {
+                    "path": path
+                }
             }
             layer = get_channel_layer()
+            running_mission = RunningMissionModel.objects.create(mission=mission, robot=robot)
             async_to_sync(layer.group_send)(str(robot.uuid),
-                                            {"type": "mission", "text_data": json.dumps(data)})
+                                            {
+                                                "type":       "mission",
+                                                "data":       data,
+                                                "missionObj": running_mission
+                                            })
             return HttpResponse(status=200, content="ok")
         return HttpResponse(status=400, content=form.errors)
