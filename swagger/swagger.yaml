@@ -1,0 +1,450 @@
+openapi: 3.0.12
+info:
+  description: "Server for project Robot Mission of Master 2 SSIO's group project AChrisMass."
+  version: "1.0.0"
+  title: "Robot Mission"
+  contact:
+    email: "mchikiro@etud.u-pem.fr"
+servers:
+- url: "http://35.210.237.250"
+tags:
+- name: "ifc"
+  description: "Everything about uploaded Ifcs file"
+- name: "missions"
+  description: "Everything about missions"
+- name: "robots"
+  description: "Operations about robots"
+schemes:
+- "http"
+consumes:
+  - multipart/form-data
+produces:
+  - application/json
+paths:
+  # LISTS
+  /ifc/api/list:
+    get:
+      tags:
+      - "ifc"
+      summary: "List ifc uploaded"
+      description: ""
+      operationId: "listIfc"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Ifc"
+
+  /ifc/api/{name}/list:
+    get:
+      tags:
+      - "ifc"
+      summary: "List ifc uploaded"
+      description: ""
+      operationId: "searchIfc"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "search name text"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Ifc"
+
+  /mission/api/list:
+    get:
+      tags:
+      - "mission"
+      summary: "List mission uploaded"
+      description: ""
+      operationId: "listMission"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/DeplacementMission"
+
+  /mission/api/{name}/list:
+    get:
+      tags:
+      - "mission"
+      summary: "List mission uploaded"
+      description: ""
+      operationId: "searchMission"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "search name text"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/DeplacementMission"
+
+  /robot/api/list:
+    get:
+      tags:
+      - "robot"
+      summary: "List robot uploaded"
+      description: ""
+      operationId: "listRobot"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Robot"
+
+  /robot/api/{name}/list:
+    get:
+      tags:
+      - "robot"
+      summary: "List robot uploaded"
+      description: ""
+      operationId: "searchRobot"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "search name text"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Robot"
+
+
+  # ADD / MODIFY
+  /ifc/api/{ifcId}/:
+    get:
+      tags:
+      - "ifc"
+      summary: "Get ifc by id"
+      description: ""
+      operationId: "getIfcById"
+      parameters:
+      - name: "ifcId"
+        in: "path"
+        description: "ID of ifc to return"
+        required: true
+        schema:
+          type: "integer"
+
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ifc"
+        404:
+          description: "Ifc not found"
+    put:
+      tags:
+      - "ifc"
+      summary: "Update ifc"
+      description: ""
+      operationId: "updateIfc"
+      parameters:
+      - in: "path"
+        name: "ifcId"
+        description: "Update ifc object"
+        required: true
+        schema:
+          type: "integer"
+      requestBody :
+        $ref: "#/components/requestBodies/IfcPutBody"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ifc"
+        400:
+          description: "Invalid parameters"
+        404:
+          description: "Ifc not found"
+  /ifc/api/:
+    post:
+      tags:
+      - "ifc"
+      summary: "Post new ifc"
+      description: ""
+      operationId: "postIfc"
+      requestBody :
+        $ref: "#/components/requestBodies/IfcPostBody"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ifc"
+        400:
+          description: "Invalid parameters"
+
+
+  /mission/api/{missionId}/:
+    get:
+      tags:
+      - "mission"
+      summary: "Get mission by id"
+      description: ""
+      operationId: "getMissionById"
+      parameters:
+      - name: "missionId"
+        in: "path"
+        description: "ID of mission to return"
+        required: true
+        schema:
+          type: "integer"
+
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeplacementMission"
+        404:
+          description: "DeplacementMission not found"
+    put:
+      tags:
+      - "mission"
+      summary: "Update mission"
+      description: ""
+      operationId: "updateMission"
+      parameters:
+      - in: "path"
+        name: "missionId"
+        description: "Update mission object"
+        required: true
+        schema:
+          type: "integer"
+      requestBody :
+        $ref: "#/components/requestBodies/MissionPutBody"
+
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeplacementMission"
+        400:
+          description: "Invalid parameters"
+        404:
+          description: "DeplacementMission not found"
+  /mission/api/:
+    post:
+      tags:
+      - "mission"
+      summary: "Post new mission"
+      description: ""
+      operationId: "postMission"
+      requestBody :
+        $ref: "#/components/requestBodies/MissionPostBody"
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeplacementMission"
+        400:
+          description: "Invalid parameters"
+  /robot/api/{uuid}/:
+    get:
+      tags:
+      - "robot"
+      summary: "Get robot by id"
+      description: ""
+      operationId: "getRobotById"
+      parameters:
+      - name: "uuid"
+        in: "path"
+        description: "robot uuid"
+        required: true
+        schema:
+          type: "string"
+
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Robot"
+        404:
+          description: "Robot not found"
+
+# MISSIONS
+ 
+  
+components:
+  requestBodies:
+    IfcPostBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              ifc_file:
+                type: file
+    IfcPutBody:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              ifc_file:
+                type: file
+    MissionPostBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              ifc_id:
+                type: integer
+              floor:
+                type: string
+              start_x:
+                type: integer
+              start_y:
+                type: integer
+              end_x:
+                type: integer
+              end_y:
+                type: integer
+    MissionPutBody:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              ifc_id:
+                type: integer
+              floor:
+                type: string
+              start_x:
+                type: integer
+              start_y:
+                type: integer
+              end_x:
+                type: integer
+              end_y:
+                type: integer
+    SendMissionPostBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              robot_uuid:
+                type: string
+  schemas:
+    Ifc:
+      type: "object"
+      properties:
+        id: 
+          type: "integer"
+        name:
+          type: "string"
+        data:
+          type: "string"
+        last_upload:
+          type: "string"
+          format: "date-time"
+
+    DeplacementMission:
+      type: "object"
+      properties:
+        id: 
+          type: "integer"
+        name:
+          type: "string"
+        ifc:
+          $ref: "#/components/schemas/Ifc"
+        floor:
+          type: "string"
+        start_x:
+          type: "integer"
+        start_y:
+          type: "integer"
+        end_x:
+          type: "integer"
+        end_y:
+          type: "integer"
+
+    Robot:
+      type: "object"
+      properties:
+        uuid: 
+          type: "string"
+        name: 
+          type: "string"
+        connected:
+          type: "boolean"
+        type:
+          type: "string"
+        channel_name:
+          type: "string"
+        status:
+          $ref: "#/components/schemas/RobotStatus"
+
+    RobotStatus:
+      type: "object"
+      properties:
+        battery: 
+          type: number
+          format: float
+        rotation: 
+          type: number
+          format: float
+
+
+
