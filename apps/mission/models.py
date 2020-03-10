@@ -28,6 +28,7 @@ class DeplacementMissionModel(models.Model):
         )
 
 
+
 class RunningMissionModel(models.Model):
     mission = models.ForeignKey(DeplacementMissionModel, on_delete=models.CASCADE)
     started_at = models.DateTimeField(auto_now_add=True)
@@ -36,3 +37,12 @@ class RunningMissionModel(models.Model):
     is_done = models.BooleanField(default=False)
     x = models.IntegerField(null=False)
     y = models.IntegerField(null=False)
+    
+    
+    def to_dict(self):
+        return dict(
+            id=self.pk,
+            is_done=self.is_done,
+            x=self.x,
+            y=self.y,
+        )

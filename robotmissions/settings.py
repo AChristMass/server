@@ -122,6 +122,9 @@ ROBOT_CONFIGS = {
     }
 }
 
+USER_CHANNEL = "userchannel"
+MISSION_CHANNEL = "missionchannel"
+
 try:
     from robotmissions.config import *
 except Exception:

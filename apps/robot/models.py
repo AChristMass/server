@@ -50,6 +50,7 @@ class RobotModel(models.Model):
         return dict(
             uuid=self.pk,
             name=self.name,
+            type=self.type,
             connected=self.connected,
             status=self.status.to_dict() if self.status else None)
     

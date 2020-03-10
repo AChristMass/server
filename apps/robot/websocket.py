@@ -3,6 +3,7 @@ import logging
 
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
+from channels.layers import get_channel_layer
 from django.conf import settings
 from django.utils.timezone import now
 
@@ -50,8 +51,7 @@ class RobotConsumer(WebsocketConsumer):
             self.send(text_data="ok")
         else:
             logger.warning(f"Robot {self.model.uuid} sent : {data}")
-            # TODO com with robot
-            self.__getattribute__(data["event"])(data)
+            self.__getattribute__(data["event"])(data)  # command from robot to socket
     
     
     def disconnect(self, code):
@@ -65,16 +65,20 @@ class RobotConsumer(WebsocketConsumer):
         x, y = self.data["path"].pop(0)
         self.mission.x = x
         self.mission.y = y
-        
-        if data["isDone"]:
+        if "isDone" in data:
             self.free()
         else:
             self.mission.save()
+            async_to_sync(self.channel_layer.group_send)(
+                settings.MISSION_CHANNEL + str(self.mission.pk), {
+                    "type":    "update_mission",
+                    "mission": self.mission
+                })
     
     
-    def mission(self, event):
+    def mission_start(self, event):
         if self.mission is not None and not self.mission.is_done:
-            return  # mission already running
+            return  # a mission is already running
         self.mission = event["mission"]
         self.data = event["data"]["socket"]
         self.send(text_data=json.dumps(event["data"]["robot"]))
@@ -84,5 +88,56 @@ class RobotConsumer(WebsocketConsumer):
         self.mission.is_done = True
         self.mission.ended_at = now()
         self.mission.save()
+        async_to_sync(self.channel_layer.group_send)(
+            settings.MISSION_CHANNEL + str(self.mission.pk), {
+                "type":    "update_mission",
+                "mission": self.mission
+            })
         self.mission = None
         self.data = {}
+
+
+
+class UserConsumer(WebsocketConsumer):
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+    
+    
+    def connect(self):
+        self.accept()
+        async_to_sync(self.channel_layer.group_add)(settings.USER_CHANNEL, self.channel_name)
+    
+    
+    def disconnect(self, close_code):
+        async_to_sync(self.channel_layer.group_discard)(settings.USER_CHANNEL, self.channel_name)
+    
+    
+    def receive(self, text_data=None, bytes_data=None):
+        try:
+            data = json.loads(text_data)
+        except json.JSONDecodeError:
+            self.close(code=3001)  # Invalid JSON
+            return
+        if "missionId" in data:
+            async_to_sync(self.channel_layer.group_add)(
+                settings.MISSION_CHANNEL + str(data["missionId"]), self.channel_name)
+    
+    
+    @classmethod
+    def broadcast(cls, message):
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(settings.USER_CHANNEL, message)
+    
+    
+    def robot_connected(self, event):
+        robot = event["robot"]
+        self.send(text_data=json.dumps({"action": "connection", "robot": robot.to_dict()}))
+    
+    
+    def update_mission(self, event):
+        mission = event["mission"]
+        if mission.is_done:
+            async_to_sync(self.channel_layer.group_discard)(
+                settings.MISSION_CHANNEL + str(mission.pk), self.channel_name)
+        self.send(text_data=json.dumps(mission.to_dict()))

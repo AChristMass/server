@@ -143,7 +143,7 @@ class SendMissionView(View):
             running_mission = RunningMissionModel.objects.create(mission=mission, robot=robot)
             async_to_sync(layer.group_send)(str(robot.uuid),
                                             {
-                                                "type":       "mission",
+                                                "type":       "mission_start",
                                                 "data":       data,
                                                 "missionObj": running_mission
                                             })
