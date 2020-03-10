@@ -38,7 +38,7 @@ class IfcView(views.View):
             data = IfcModel.parse(saved_filepath)
             
             ifc = IfcModel.objects.create(name=name, file_path=saved_filepath, data=data)
-            return JsonResponse(status=200, data={"id": ifc.id, "path": ifc.file_path})
+            return JsonResponse(status=200, data=ifc.to_dict())
         return HttpResponse(status=400, content=str(form.errors))
     
     
@@ -59,8 +59,7 @@ class IfcView(views.View):
                     ifc_model.data = IfcModel.parse(ifc_model.file_path)
                 
                 ifc_model.save()
-                ifc_json = IfcModel.objects.filter(pk=ifc_model.pk).values().first()
-                return JsonResponse(status=200, data=ifc_json)
+                return JsonResponse(status=200, data=ifc_model.to_dict())
             except IfcModel.DoesNotExist:
                 return HttpResponse(status=404, content="Ifc does not exist")
         return HttpResponse(status=400, content=str(form.errors))
