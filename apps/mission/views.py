@@ -47,31 +47,34 @@ class DeplacementMissionView(View):
                 return JsonResponse(status=200, data=mission.to_dict())
             except IfcModel.DoesNotExist:
                 return HttpResponse(status=404, content="Ifc does not exist")
-            
+        
         return HttpResponse(status=400, content=str(form.errors))
     
     
     def put(self, request, pk):
-        try:
-            m = DeplacementMissionModel.objects.get(pk=pk)
-            
-            if request.PUT['ifc_id'] != m.ifc.pk:
-                try :
-                    m.ifc = IfcModel.objects.get(pk=request.PUT['ifc_id'])
-                except IfcModel.DoesNotExist:
-                    return HttpResponse(status=404, content="Ifc does not exist")
-            m.name = request.PUT["name"]
-            m.floor = request.PUT['floor']
-            m.start_x = request.PUT['start_x']
-            m.start_y = request.PUT['start_y']
-            m.end_x = request.PUT['end_x']
-            m.end_y = request.PUT['end_y']
-            if not m.ifc.check_position(m.floor, [(m.start_x, m.start_y), (m.end_x, m.end_y)]):
-                return HttpResponse(status=400, content="invalid position")
-            m.save()
-            return JsonResponse(status=200, data=m.to_dict())
-        except DeplacementMissionModel.DoesNotExist:
-            return HttpResponse(status=404, content="Mission does not exist")
+        form = DeplacementMissionForm(request.PUT)
+        if form.is_valid():
+            try:
+                m = DeplacementMissionModel.objects.get(pk=pk)
+                
+                if form.cleaned_data['ifc_id'] != m.ifc.pk:
+                    try:
+                        m.ifc = IfcModel.objects.get(pk=form.cleaned_data['ifc_id'])
+                    except IfcModel.DoesNotExist:
+                        return HttpResponse(status=404, content="Ifc does not exist")
+                m.name = form.cleaned_data["name"]
+                m.floor = form.cleaned_data['floor']
+                m.start_x = form.cleaned_data['start_x']
+                m.start_y = form.cleaned_data['start_y']
+                m.end_x = form.cleaned_data['end_x']
+                m.end_y = form.cleaned_data['end_y']
+                if not m.ifc.check_position(m.floor, [(m.start_x, m.start_y), (m.end_x, m.end_y)]):
+                    return HttpResponse(status=400, content="invalid position")
+                m.save()
+                return JsonResponse(status=200, data=m.to_dict())
+            except DeplacementMissionModel.DoesNotExist:
+                return HttpResponse(status=404, content="Mission does not exist")
+        return HttpResponse(status=400, content=str(form.errors))
     
     
     def delete(self, request, pk):
