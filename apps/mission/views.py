@@ -31,39 +31,45 @@ class DeplacementMissionView(View):
         if form.is_valid():
             try:
                 ifc = IfcModel.objects.get(pk=request.POST['ifc_id'])
+                name = form.cleaned_data["name"]
                 start_x = form.cleaned_data["start_x"]
                 start_y = form.cleaned_data["start_y"]
                 end_x = form.cleaned_data["end_x"]
                 end_y = form.cleaned_data["end_y"]
                 floor = form.cleaned_data["floor"]
                 if not ifc.check_position(floor, [(start_x, start_y), (end_x, end_y)]):
+                    print("INVALID POSITION")
                     return HttpResponse(status=400, content="invalid position")
                 mission = DeplacementMissionModel.objects.create(
-                    ifc=ifc, floor=floor,
+                    ifc=ifc, floor=floor, name=name,
                     start_x=start_x, start_y=start_y,
                     end_x=end_x, end_y=end_y)
                 return JsonResponse(status=200, data=mission.to_dict())
             except IfcModel.DoesNotExist:
                 return HttpResponse(status=404, content="Ifc does not exist")
+            
         return HttpResponse(status=400, content=str(form.errors))
     
     
     def put(self, request, pk):
         try:
-            mission = DeplacementMissionModel.objects.get(pk=pk)
+            m = DeplacementMissionModel.objects.get(pk=pk)
             
-            if request.PUT['ifc_id'] != mission.ifc.pk:
+            if request.PUT['ifc_id'] != m.ifc.pk:
                 try :
-                    mission.ifc = IfcModel.objects.get(pk=request.PUT['ifc_id'])
+                    m.ifc = IfcModel.objects.get(pk=request.PUT['ifc_id'])
                 except IfcModel.DoesNotExist:
                     return HttpResponse(status=404, content="Ifc does not exist")
-            mission.floor = request.PUT['floor']
-            mission.start_x = request.PUT['start_x']
-            mission.start_y = request.PUT['start_y']
-            mission.end_x = request.PUT['end_x']
-            mission.end_y = request.PUT['end_y']
-            mission.save()
-            return JsonResponse(status=200, data=mission.to_dict())
+            m.name = request.PUT["name"]
+            m.floor = request.PUT['floor']
+            m.start_x = request.PUT['start_x']
+            m.start_y = request.PUT['start_y']
+            m.end_x = request.PUT['end_x']
+            m.end_y = request.PUT['end_y']
+            if not m.ifc.check_position(m.floor, [(m.start_x, m.start_y), (m.end_x, m.end_y)]):
+                return HttpResponse(status=400, content="invalid position")
+            m.save()
+            return JsonResponse(status=200, data=m.to_dict())
         except DeplacementMissionModel.DoesNotExist:
             return HttpResponse(status=404, content="Mission does not exist")
     
