@@ -1,8 +1,7 @@
 import logging
+
 import networkx as nx
 from math import sqrt
-
-from ifc.models import IfcModel
 
 
 logger = logging.getLogger(__name__)
@@ -111,10 +110,11 @@ def create_move_action(cur_pos, nxt_pos):
 
 
 
-def create_actions_path(path, directions, all_actions):
+def create_actions_and_finalpath(path, directions, all_actions):
     direction = directions["NORTH"]
     actions = []
     lst_pos = path[0]
+    final_path = [lst_pos]
     for i in range(1, len(path)):
         nxt_x, nxt_y = path[i]
         lst_x, lst_y = path[i - 1]
@@ -131,12 +131,13 @@ def create_actions_path(path, directions, all_actions):
         way = directions[direction_name]
         if direction != way:
             if i > 1:
+                final_path.append(path[i - 1])
                 actions.append(all_actions["MOVE"](lst_pos, path[i - 1]))
                 lst_pos = path[i - 1]
             actions.append(all_actions["TURN"](direction, way))
             direction = way
     actions.append(all_actions["MOVE"](lst_pos, path[-1]))
-    return actions
+    return final_path, actions
 
 
 
@@ -214,4 +215,4 @@ def actions_and_path_from_ifc(ifc_data, floor, source, target, robot_config):
     path = nx.algorithms.shortest_paths.generic.shortest_path(
         graph, source=source, target=target, weight="weight")
     
-    return path, create_actions_path(path, directions, actions)
+    return create_actions_and_finalpath(path, directions, actions)
