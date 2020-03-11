@@ -47,7 +47,7 @@ class RobotModel(models.Model):
     
     def to_dict(self):
         return dict(
-            uuid=self.pk,
+            uuid=str(self.pk),
             name=self.name,
             type=self.type,
             connected=self.connected,
