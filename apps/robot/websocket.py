@@ -19,7 +19,7 @@ class RobotConsumer(WebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model = None
-        self.mission = None
+        self.mission_in_prog = None
         self.data = {}
     
     
@@ -47,6 +47,7 @@ class RobotConsumer(WebsocketConsumer):
             except RobotModel.DoesNotExist:
                 self.model = RobotModel.objects.create(uuid=data["uuid"], type=data["type"])
             self.model.connect(self.channel_name)
+            logger.info(f"Connected robot {self.model.uuid}")
             UserConsumer.broadcast({
                 "type":  "robot_connected",
                 "robot": self.model
@@ -59,45 +60,51 @@ class RobotConsumer(WebsocketConsumer):
     
     
     def disconnect(self, code):
+        logger.info(f"Disconnecting robot {self.model.uuid}")
         if self.model:
             async_to_sync(self.channel_layer.group_discard)(str(self.model.uuid), self.channel_name)
             self.model.disconnect()
         self.free()
     
-    
+    # command from robot
     def movement_notification(self, data):
         x, y = self.data["path"].pop(0)
-        self.mission.x = x
-        self.mission.y = y
+        logger.info(f"movement notification {x,y}")
+        self.mission_in_prog.x = x
+        self.mission_in_prog.y = y
         if "isDone" in data:
+            logger.info(f"mission done")
             self.free()
         else:
-            self.mission.save()
-            async_to_sync(self.channel_layer.group_send)(
-                settings.MISSION_CHANNEL + str(self.mission.pk), {
+            self.mission_in_prog.save()
+            mission_channel = settings.MISSION_CHANNEL + str(self.mission_in_prog.pk)
+            logger.info(f"update mission {mission_channel}")
+            async_to_sync(self.channel_layer.group_send)(mission_channel, {
                     "type":    "update_mission",
-                    "mission": self.mission
+                    "mission": self.mission_in_prog
                 })
     
     
     def mission_start(self, event):
-        if self.mission is not None and not self.mission.is_done:
+        if self.mission_in_prog is not None and not self.mission_in_prog.is_done:
             return  # a mission is already running
-        self.mission = event["mission"]
+        self.mission_in_prog = event["mission"]
+        logger.info(f"Robot {self.model.uuid} starting mission {self.mission_in_prog.mission.pk}")
         self.data = event["data"]["socket"]
         self.send(text_data=json.dumps(event["data"]["robot"]))
     
     
     def free(self):
-        self.mission.is_done = True
-        self.mission.ended_at = now()
-        self.mission.save()
+        logger.info(f"freeing robot socket")
+        self.mission_in_prog.is_done = True
+        self.mission_in_prog.ended_at = now()
+        self.mission_in_prog.save()
         async_to_sync(self.channel_layer.group_send)(
-            settings.MISSION_CHANNEL + str(self.mission.pk), {
+            settings.MISSION_CHANNEL + str(self.mission_in_prog.pk), {
                 "type":    "update_mission",
-                "mission": self.mission
+                "mission": self.mission_in_prog
             })
-        self.mission = None
+        self.mission_in_prog = None
         self.data = {}
 
 
