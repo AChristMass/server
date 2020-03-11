@@ -1,17 +1,21 @@
 #!/usr/bin/python3
-import asyncio
 import json
 import sys
 
 import robot_deplacement as robot
-import websockets
+import websocket
 
+
+try:
+    import thread
+except ImportError:
+    import _thread as thread
 
 NOTIFY_MOVEMENT_EVENT = "movement_notification"
 
 
 
-async def perform_deplacement_mission(ws, actions):
+def perform_deplacement_mission(ws, actions):
     for action, arg in actions:
         if action == 'T':
             print("turning on " + str(arg) + "deg")
@@ -19,44 +23,44 @@ async def perform_deplacement_mission(ws, actions):
         elif action == 'M':
             print("moving forward by " + str(arg) + "mm")
             robot.forward_by_millimeter(arg)
-            await ws.send(json.dumps({
+            ws.send(json.dumps({
                 "event":  NOTIFY_MOVEMENT_EVENT,
                 "isDone": False
             }))
         else:
             print("unknow action '" + str(action) + "'")
-    await ws.send(json.dumps({
+    ws.send(json.dumps({
         "event":  NOTIFY_MOVEMENT_EVENT,
         "isDone": True
     }))
 
 
 
-async def main_loop(ws):
-    while True:
-        print("WAITING FOR NEW DATA")
-        data = await ws.recv()
-        data = json.loads(data)
-        if data["type"] == "deplacement":
-            await perform_deplacement_mission(ws, data["actions"])
+def on_message(ws, message):
+    print("### message ### : "+message)
+    data = json.loads(message)
+    if data["type"] == "deplacement":
+        def run():
+            perform_deplacement_mission(ws, data["actions"])
+        thread.start_new_thread(run, ())
 
 
 
-async def connect_robot(ip):
-    uri = "ws://" + ip + "/robotsocket/"
-    print("uri : ", uri)
+def on_error(ws, error):
+    print(error)
+
+
+
+def on_close(ws):
+    print("### closed ###")
+
+
+
+def on_open(ws):
+    print("### open ###")
     with open("conf.json", "r") as jsonfile:
         data = jsonfile.read()
-    
-    async with websockets.connect(uri) as ws:
-        await ws.send(data)
-        data = await ws.recv()
-        if data == "ok":
-            print("Robot is now connected")
-            await main_loop(ws)
-        else:
-            print("Robot failed to connect")
-            return
+        ws.send(data)
 
 
 
@@ -64,7 +68,15 @@ def main():
     if len(sys.argv) != 2:
         print("usage: robot_socket websocketip")
         return
-    asyncio.get_event_loop().run_until_complete(connect_robot(sys.argv[1]))
+    websocket.enableTrace(True)
+    uri = "ws://" + sys.argv[1] + "/robotsocket/"
+    
+    ws = websocket.WebSocketApp(uri,
+                                on_message=on_message,
+                                on_open=on_open,
+                                on_error=on_error,
+                                on_close=on_close)
+    ws.run_forever()
 
 
 
