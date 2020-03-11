@@ -8,7 +8,7 @@ from django.conf import settings
 from django.utils.timezone import now
 
 from robot.models import RobotModel
-
+from django.core.serializers.json import DjangoJSONEncoder
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +91,7 @@ class RobotConsumer(WebsocketConsumer):
         self.mission_in_prog = event["mission"]
         logger.info(f"Robot {self.model.uuid} starting mission {self.mission_in_prog.mission.pk}")
         self.data = event["data"]["socket"]
-        self.send(text_data=json.dumps(event["data"]["robot"]))
+        self.send(text_data=json.dumps(event["data"]["robot"], cls=DjangoJSONEncoder))
     
     
     def free(self):
@@ -153,7 +153,7 @@ class UserConsumer(WebsocketConsumer):
             {
                 "action": "robot_connection",
                 "robot":  robot.to_dict()
-            }))
+            }, cls=DjangoJSONEncoder))
     
     
     def update_mission(self, event):
@@ -166,4 +166,4 @@ class UserConsumer(WebsocketConsumer):
             {
                 "action":  "update_mission",
                 "mission": mission.to_dict()
-            }))
+            }, cls=DjangoJSONEncoder))
