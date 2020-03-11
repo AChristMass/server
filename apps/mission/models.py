@@ -32,7 +32,7 @@ class DeplacementMissionModel(models.Model):
 class MissionInProgModel(models.Model):
     mission = models.ForeignKey(DeplacementMissionModel, on_delete=models.CASCADE)
     started_at = models.DateTimeField(auto_now_add=True)
-    ended_at = models.DateTimeField(null=True)
+    ended_at = models.DateTimeField(auto_now_add=True)
     robot = models.ForeignKey(RobotModel, on_delete=models.CASCADE)
     is_done = models.BooleanField(default=False)
     x = models.IntegerField(null=False)

@@ -139,8 +139,10 @@ class StartMissionView(View):
                     "path": path
                 }
             }
+            
             layer = get_channel_layer()
-            mission_inprog = MissionInProgModel.objects.create(mission=mission, robot=robot)
+            mission_inprog = MissionInProgModel.objects.create(mission=mission, robot=robot,
+                                                               x=start[0], y=start[1])
             async_to_sync(layer.group_send)(str(robot.uuid),
                                             {
                                                 "type":       "mission_start",
