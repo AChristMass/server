@@ -44,3 +44,20 @@ class RobotListView(ListView):
         for robot in queryset:
             data.append(robot.to_dict())
         return JsonResponse(data, status=200, safe=False)
+
+
+
+class RobotAvailableListView(ListView):
+    model = RobotModel
+    
+    
+    def get_queryset(self):
+        return self.model.objects.filter(connected=True)
+    
+    
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset().all()
+        data = list()
+        for robot in queryset:
+            data.append(robot.to_dict())
+        return JsonResponse(data, status=200, safe=False)
