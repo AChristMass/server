@@ -47,6 +47,10 @@ class RobotConsumer(WebsocketConsumer):
             except RobotModel.DoesNotExist:
                 self.model = RobotModel.objects.create(uuid=data["uuid"], type=data["type"])
             self.model.connect(self.channel_name)
+            UserConsumer.broadcast({
+                "type":  "robot_connected",
+                "robot": self.model
+            })
             async_to_sync(self.channel_layer.group_add)(str(self.model.uuid), self.channel_name)
             self.send(text_data="ok")
         else:

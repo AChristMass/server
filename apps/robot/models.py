@@ -3,9 +3,6 @@ import logging
 from django.conf import settings
 from django.db import models
 
-from robot.websocket import UserConsumer
-
-
 logger = logging.getLogger(__name__)
 
 
@@ -40,10 +37,6 @@ class RobotModel(models.Model):
         self.channel_name = channel_name
         self.connected = True
         self.save()
-        UserConsumer.broadcast({
-            "type":  "robot_connected",
-            "robot": self
-        })
     
     
     def disconnect(self):
