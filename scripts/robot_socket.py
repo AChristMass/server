@@ -24,8 +24,7 @@ def perform_deplacement_mission(ws, actions):
             print("moving forward by " + str(arg) + "mm")
             robot.forward_by_millimeter(arg)
             ws.send(json.dumps({
-                "event":  NOTIFY_MOVEMENT_EVENT,
-                "isDone": False
+                "event":  NOTIFY_MOVEMENT_EVENT
             }))
         else:
             print("unknow action '" + str(action) + "'")

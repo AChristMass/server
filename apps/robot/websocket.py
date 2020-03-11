@@ -55,7 +55,7 @@ class RobotConsumer(WebsocketConsumer):
             })
             async_to_sync(self.channel_layer.group_add)(str(self.model.uuid), self.channel_name)
         else:
-            logger.warning(f"Robot {self.model.uuid} sent : {data}")
+            logger.info(f"Robot {self.model.uuid} sent command : {data}")
             self.__getattribute__(data["event"])(data)  # command from robot to socket
     
     
