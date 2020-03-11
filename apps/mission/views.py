@@ -147,7 +147,7 @@ class StartMissionView(View):
                                             {
                                                 "type":       "mission_start",
                                                 "data":       data,
-                                                "missionObj": mission_inprog
+                                                "mission": mission_inprog
                                             })
             return JsonResponse(status=200, data=mission_inprog.to_dict())
         return HttpResponse(status=400, content=form.errors)
