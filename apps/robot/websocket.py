@@ -31,6 +31,7 @@ class RobotConsumer(WebsocketConsumer):
         try:
             data = json.loads(text_data)
         except json.JSONDecodeError:
+            logger.warning("JSON DECODE ERROR : CLOSING SOCKET")
             self.close(code=3001)  # Invalid JSON
             return
         if self.model is None:
@@ -53,7 +54,6 @@ class RobotConsumer(WebsocketConsumer):
                 "robot": self.model
             })
             async_to_sync(self.channel_layer.group_add)(str(self.model.uuid), self.channel_name)
-            self.send(text_data="ok")
         else:
             logger.warning(f"Robot {self.model.uuid} sent : {data}")
             self.__getattribute__(data["event"])(data)  # command from robot to socket
@@ -78,7 +78,7 @@ class RobotConsumer(WebsocketConsumer):
         else:
             self.mission_in_prog.save()
             mission_channel = settings.MISSION_CHANNEL + str(self.mission_in_prog.pk)
-            logger.info(f"update mission {mission_channel}")
+            logger.info(f"Update mission {mission_channel}")
             async_to_sync(self.channel_layer.group_send)(mission_channel, {
                     "type":    "update_mission",
                     "mission": self.mission_in_prog
@@ -117,22 +117,27 @@ class UserConsumer(WebsocketConsumer):
     
     def connect(self):
         self.accept()
+        logger.info("New user connected")
         async_to_sync(self.channel_layer.group_add)(settings.USER_CHANNEL, self.channel_name)
     
     
     def disconnect(self, close_code):
+        logger.info("User disconnected")
         async_to_sync(self.channel_layer.group_discard)(settings.USER_CHANNEL, self.channel_name)
     
     
     def receive(self, text_data=None, bytes_data=None):
+        logger.info(f"User received {text_data}")
         try:
             data = json.loads(text_data)
         except json.JSONDecodeError:
+            logger.warning("JSON DECODE ERROR : CLOSING SOCKET")
             self.close(code=3001)  # Invalid JSON
             return
         if "missionId" in data:
-            async_to_sync(self.channel_layer.group_add)(
-                settings.MISSION_CHANNEL + str(data["missionId"]), self.channel_name)
+            mission_channel = settings.MISSION_CHANNEL + str(data["missionId"])
+            logger.info(f"Add user to channel {mission_channel}")
+            async_to_sync(self.channel_layer.group_add)(mission_channel, self.channel_name)
     
     
     @classmethod
@@ -142,6 +147,7 @@ class UserConsumer(WebsocketConsumer):
     
     
     def robot_connected(self, event):
+        logger.info(f"User socket : robot_connected")
         robot = event["robot"]
         self.send(text_data=json.dumps(
             {
@@ -151,6 +157,7 @@ class UserConsumer(WebsocketConsumer):
     
     
     def update_mission(self, event):
+        logger.info(f"User socket : update_mission")
         mission = event["mission"]
         if mission.is_done:
             async_to_sync(self.channel_layer.group_discard)(
