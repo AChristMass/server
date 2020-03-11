@@ -15,3 +15,4 @@ class DeplacementMissionForm(Form):
 
 class SendMissionForm(Form):
     robot_uuid = UUIDField()
+    mission_id = IntegerField()

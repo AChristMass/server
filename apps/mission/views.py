@@ -103,13 +103,13 @@ class DeplacementMissionListView(ListView):
 
 
 
-class SendMissionView(View):
+class StartMissionView(View):
     
-    def post(self, request, pk):
+    def post(self, request):
         form = SendMissionForm(request.POST)
         if form.is_valid():
             try:
-                mission = DeplacementMissionModel.objects.get(pk=pk)
+                mission = DeplacementMissionModel.objects.get(pk=form.cleaned_data["mission_id"])
             except DeplacementMissionModel.DoesNotExist:
                 return HttpResponse(status=404, content="Mission does not exist")
             try:
@@ -140,14 +140,14 @@ class SendMissionView(View):
                 }
             }
             layer = get_channel_layer()
-            running_mission = MissionInProgModel.objects.create(mission=mission, robot=robot)
+            mission_inprog = MissionInProgModel.objects.create(mission=mission, robot=robot)
             async_to_sync(layer.group_send)(str(robot.uuid),
                                             {
                                                 "type":       "mission_start",
                                                 "data":       data,
-                                                "missionObj": running_mission
+                                                "missionObj": mission_inprog
                                             })
-            return HttpResponse(status=200, content="ok")
+            return JsonResponse(status=200, data=mission_inprog.to_dict())
         return HttpResponse(status=400, content=form.errors)
 
 
