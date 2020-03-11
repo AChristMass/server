@@ -80,7 +80,7 @@ class RobotConsumer(WebsocketConsumer):
             mission_channel = settings.MISSION_CHANNEL + str(self.mission_in_prog.pk)
             logger.info(f"Update mission {mission_channel}")
             async_to_sync(self.channel_layer.group_send)(mission_channel, {
-                    "type":    "update_mission",
+                    "type":    "update_position",
                     "mission": self.mission_in_prog
                 })
     
@@ -96,15 +96,16 @@ class RobotConsumer(WebsocketConsumer):
     
     def free(self):
         logger.info(f"freeing robot socket")
-        self.mission_in_prog.is_done = True
-        self.mission_in_prog.ended_at = now()
-        self.mission_in_prog.save()
-        async_to_sync(self.channel_layer.group_send)(
-            settings.MISSION_CHANNEL + str(self.mission_in_prog.pk), {
-                "type":    "update_mission",
-                "mission": self.mission_in_prog
-            })
-        self.mission_in_prog = None
+        if self.mission_in_prog :
+            self.mission_in_prog.is_done = True
+            self.mission_in_prog.ended_at = now()
+            self.mission_in_prog.save()
+            mission_channel = settings.MISSION_CHANNEL + str(self.mission_in_prog.pk)
+            async_to_sync(self.channel_layer.group_send)(mission_channel, {
+                    "type":    "mission_done",
+                    "channel": mission_channel
+                })
+            self.mission_in_prog = None
         self.data = {}
 
 
@@ -136,10 +137,9 @@ class UserConsumer(WebsocketConsumer):
             return
         if "missionId" in data:
             mission_channel = settings.MISSION_CHANNEL + str(data["missionId"])
-            logger.info(f"Add user to channel {mission_channel}")
             async_to_sync(self.channel_layer.group_add)(mission_channel, self.channel_name)
-    
-    
+
+
     @classmethod
     def broadcast(cls, message):
         channel_layer = get_channel_layer()
@@ -154,16 +154,22 @@ class UserConsumer(WebsocketConsumer):
                 "action": "robot_connection",
                 "robot":  robot.to_dict()
             }, cls=DjangoJSONEncoder))
-    
-    
-    def update_mission(self, event):
-        logger.info(f"User socket : update_mission")
+
+
+    def update_position(self, event):
+        logger.info(f"User socket : update_position")
         mission = event["mission"]
-        if mission.is_done:
-            async_to_sync(self.channel_layer.group_discard)(
-                settings.MISSION_CHANNEL + str(mission.pk), self.channel_name)
-        self.send(text_data=json.dumps(
-            {
+        data = {
+            "action":   "update_mission",
+            "position": (mission.x, mission.y),
+        }
+        self.send(text_data=json.dumps(data, cls=DjangoJSONEncoder))
+    
+    def mission_done(self, event):
+        logger.info(f"User socket : mission_done")
+        async_to_sync(self.channel_layer.group_discard)(event["channel"], self.channel_name)
+        data = {
                 "action":  "update_mission",
-                "mission": mission.to_dict()
-            }, cls=DjangoJSONEncoder))
+                "isDone": True,
+            }
+        self.send(text_data=json.dumps(data, cls=DjangoJSONEncoder))
