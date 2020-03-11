@@ -132,7 +132,11 @@ class UserConsumer(WebsocketConsumer):
     
     def robot_connected(self, event):
         robot = event["robot"]
-        self.send(text_data=json.dumps({"action": "connection", "robot": robot.to_dict()}))
+        self.send(text_data=json.dumps(
+            {
+                "action": "robot_connection",
+                "robot":  robot.to_dict()
+            }))
     
     
     def update_mission(self, event):
@@ -140,4 +144,8 @@ class UserConsumer(WebsocketConsumer):
         if mission.is_done:
             async_to_sync(self.channel_layer.group_discard)(
                 settings.MISSION_CHANNEL + str(mission.pk), self.channel_name)
-        self.send(text_data=json.dumps(mission.to_dict()))
+        self.send(text_data=json.dumps(
+            {
+                "action":  "update_mission",
+                "mission": mission.to_dict()
+            }))

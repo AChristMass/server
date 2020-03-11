@@ -10,7 +10,7 @@ from ifc.models import IfcModel
 from mission import utils
 from mission.forms import DeplacementMissionForm, SendMissionForm
 from mission.graph import actions_and_path_from_ifc
-from mission.models import DeplacementMissionModel, RunningMissionModel
+from mission.models import DeplacementMissionModel, MissionInProgModel
 from robot.models import RobotModel
 
 
@@ -132,7 +132,7 @@ class SendMissionView(View):
             
             data = {
                 "robot":  {
-                    "type": "deplacement",
+                    "type":    "deplacement",
                     "actions": actions
                 },
                 "socket": {
@@ -140,7 +140,7 @@ class SendMissionView(View):
                 }
             }
             layer = get_channel_layer()
-            running_mission = RunningMissionModel.objects.create(mission=mission, robot=robot)
+            running_mission = MissionInProgModel.objects.create(mission=mission, robot=robot)
             async_to_sync(layer.group_send)(str(robot.uuid),
                                             {
                                                 "type":       "mission_start",
@@ -149,3 +149,16 @@ class SendMissionView(View):
                                             })
             return HttpResponse(status=200, content="ok")
         return HttpResponse(status=400, content=form.errors)
+
+
+
+class MissionInProgListView(ListView):
+    model = MissionInProgModel
+    
+    
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset().all()
+        data = list()
+        for mission_inprog in queryset:
+            data.append(mission_inprog.to_dict())
+        return JsonResponse(data, status=200, safe=False)
