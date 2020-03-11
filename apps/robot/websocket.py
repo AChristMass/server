@@ -161,7 +161,7 @@ class UserConsumer(WebsocketConsumer):
         mission = event["mission"]
         data = {
             "action":   "update_mission",
-            "position": (mission.x, mission.y),
+            "position": {"x":mission.x, "y":mission.y}
         }
         self.send(text_data=json.dumps(data, cls=DjangoJSONEncoder))
     
