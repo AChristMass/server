@@ -60,11 +60,11 @@ class RobotConsumer(WebsocketConsumer):
     
     
     def disconnect(self, code):
-        logger.info(f"Disconnecting robot {self.model.uuid}")
         if self.model:
+            logger.info(f"Disconnecting robot {self.model.uuid}")
             async_to_sync(self.channel_layer.group_discard)(str(self.model.uuid), self.channel_name)
             self.model.disconnect()
-        self.free()
+            self.free()
     
     # command from robot
     def movement_notification(self, data):

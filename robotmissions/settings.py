@@ -119,6 +119,11 @@ ROBOT_CONFIGS = {
     "ev3": {
         "cell_div":     10,
         "stretch_size": 5
+    },
+    
+    "turtlebot": {
+        "cell_div":     10,
+        "stretch_size": 5
     }
 }
 
