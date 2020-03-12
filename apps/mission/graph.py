@@ -120,9 +120,9 @@ def create_actions_and_finalpath(path, directions, all_actions):
         lst_x, lst_y = path[i - 1]
         dir_x, dir_y = nxt_x - lst_x, nxt_y - lst_y
         direction_name = ""
-        if dir_y > 0:
+        if dir_y < 0:
             direction_name = direction_name + "SOUTH"
-        elif dir_y < 0:
+        elif dir_y > 0:
             direction_name = direction_name + "NORTH"
         if dir_x > 0:
             direction_name = direction_name + "EAST"
