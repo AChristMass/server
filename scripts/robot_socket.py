@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import json
 import sys
+from time import sleep
 
 import robot_deplacement as robot
 import websocket
@@ -12,6 +13,7 @@ except ImportError:
     import _thread as thread
 
 NOTIFY_MOVEMENT_EVENT = "movement_notification"
+NOTIFY_END_EVENT = "end_notification"
 
 
 
@@ -24,23 +26,25 @@ def perform_deplacement_mission(ws, actions):
             print("moving forward by " + str(arg) + "mm")
             robot.forward_by_millimeter(arg)
             ws.send(json.dumps({
-                "event":  NOTIFY_MOVEMENT_EVENT
+                "event": NOTIFY_MOVEMENT_EVENT
             }))
         else:
             print("unknow action '" + str(action) + "'")
+    sleep(0.2)  # wait before sending end event
     ws.send(json.dumps({
-        "event":  NOTIFY_MOVEMENT_EVENT,
-        "isDone": True
+        "event": NOTIFY_END_EVENT
     }))
 
 
 
 def on_message(ws, message):
-    print("### message ### : "+message)
+    print("### message ### : " + message)
     data = json.loads(message)
     if data["type"] == "deplacement":
         def run():
             perform_deplacement_mission(ws, data["actions"])
+        
+        
         thread.start_new_thread(run, ())
 
 

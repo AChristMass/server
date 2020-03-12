@@ -129,7 +129,7 @@ class StartMissionView(View):
             
             path, actions = actions_and_path_from_ifc(mission.ifc.get_data(), mission.floor,
                                                       start, end, robot_config)
-            
+            x,y = path.pop(0)
             data = {
                 "robot":  {
                     "type":    "deplacement",
@@ -142,7 +142,7 @@ class StartMissionView(View):
             
             layer = get_channel_layer()
             mission_inprog = MissionInProgModel.objects.create(mission=mission, robot=robot,
-                                                               x=start[0], y=start[1])
+                                                               x=x, y=y)
             async_to_sync(layer.group_send)(str(robot.uuid),
                                             {
                                                 "type":       "mission_start",
