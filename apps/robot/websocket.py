@@ -35,10 +35,10 @@ class RobotConsumer(WebsocketConsumer):
             self.close(code=3001)  # Invalid JSON
             return
         if self.model is None:
-            if "uuid" not in data or "type" not in data:
+            if "uuid" not in data or "type" not in data or "name" not in data:
                 self.close(code=3002)  # JSON must have fields : uuid, type
                 return
-            
+
             if data["type"] not in settings.ROBOT_CONFIGS:
                 self.close(code=3003)  # Robot type not handled
                 return
@@ -46,7 +46,7 @@ class RobotConsumer(WebsocketConsumer):
             try:
                 self.model = RobotModel.objects.get(uuid=data["uuid"])
             except RobotModel.DoesNotExist:
-                self.model = RobotModel.objects.create(uuid=data["uuid"], type=data["type"])
+                self.model = RobotModel.objects.create(uuid=data["uuid"], type=data["type"], name=data["name"])
             self.model.connect(self.channel_name)
             logger.info(f"Connected robot {self.model.uuid}")
             UserConsumer.broadcast({
