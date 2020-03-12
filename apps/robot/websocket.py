@@ -72,7 +72,7 @@ class RobotConsumer(WebsocketConsumer):
         logger.info(f"movement notification {x,y}")
         self.mission_in_prog.x = x
         self.mission_in_prog.y = y
-        self.mission_in_prog.save(x=x, y=y)
+        self.mission_in_prog.save()
         mission_channel = settings.MISSION_CHANNEL + str(self.mission_in_prog.pk)
         logger.info(f"Update mission {mission_channel}")
         async_to_sync(self.channel_layer.group_send)(mission_channel, {
