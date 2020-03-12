@@ -136,6 +136,7 @@ def create_actions_and_finalpath(path, directions, all_actions):
                 lst_pos = path[i - 1]
             actions.append(all_actions["TURN"](direction, way))
             direction = way
+    final_path.append(path[-1])
     actions.append(all_actions["MOVE"](lst_pos, path[-1]))
     return final_path, actions
 
