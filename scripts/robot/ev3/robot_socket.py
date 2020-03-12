@@ -47,8 +47,6 @@ def on_message(ws, message):
     if data["type"] == "deplacement":
         def run():
             perform_deplacement_mission(ws, data["actions"])
-        
-        
         thread.start_new_thread(run, ())
 
 

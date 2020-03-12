@@ -1,12 +1,18 @@
 from time import sleep
 
-from ev3dev2.motor import OUTPUT_A, OUTPUT_B, MoveTank, SpeedPercent, follow_for_ms, MoveSteering
-from ev3dev2.sensor.lego import GyroSensor
+from ev3dev2.motor import MoveSteering, MoveTank, OUTPUT_A, OUTPUT_B
 from ev3dev2.sensor import INPUT_2
+from ev3dev2.sensor.lego import GyroSensor
 
-MOVE_TANK = MoveTank(OUTPUT_A, OUTPUT_B)
-MOVE_STEERING = MoveSteering()
+
+OUT_LEFT = OUTPUT_B
+OUT_RIGHT = OUTPUT_A
+
+MOVE_TANK = MoveTank(OUT_LEFT, OUT_RIGHT)
+MOVE_STEERING = MoveSteering(OUT_LEFT, OUT_RIGHT)
+
 DEGREE_SUCCESS_RATE = 0.92
+DEGREE_SUCCESS_RATE_NEG = 0.88
 
 METER_IN_MS = 8200
 
@@ -16,18 +22,39 @@ BRAKE_TYPES_LIST = [
     ("brake", "passively and less forcefully tries to stop the motor turning"),
 ]
 BRAKE_TYPE = "brake"
-LEFT = ev3.LargeMotor('outB')
-RIGHT = ev3.LargeMotor('outA')
-
-LEFT.reset()
-RIGHT.reset()
 
 GYRO = GyroSensor(INPUT_2)
 GYRO.mode = 'GYRO-ANG'
 
-SPEED = 250
+SPEED = 25  # in percent
 
 
+
+def forward(t):
+    print("start")
+    wait_time = t / 1000  # in seconds
+    nb_wait = wait_time / 0.1  # nb of wait of 0.1second
+    start_ang = GYRO.angle
+    print("nb_wait", nb_wait)
+    for i in range(int(nb_wait)):
+        ang = GYRO.angle
+        delta_ang = start_ang - ang
+        st = delta_ang * 10
+        print("steering", st)
+        MOVE_STEERING.on(steering=st, speed=SPEED)
+        sleep(0.1)
+    MOVE_STEERING.off()
+    sleep(1)
+
+
+
+def forward_by_millimeter(millimeter):
+    meter = millimeter / 1000
+    forward(meter * METER_IN_MS)
+
+def set_succ_rate_neg(succ_rate):
+    global DEGREE_SUCCESS_RATE_NEG
+    DEGREE_SUCCESS_RATE_NEG = succ_rate
 
 def reset_gyro():
     GYRO.reset()
@@ -41,27 +68,19 @@ def set_succ_rate(succ_rate):
 
 
 def turn(d):
-    delta = DEGREE_SUCCESS_RATE * d
-    motor, motor_inv = (RIGHT, LEFT) if delta < 0 else (LEFT, RIGHT)
-    motor.run_forever(speed_sp=SPEED)
-    motor_inv.run_forever(speed_sp=-SPEED)
-    GYRO.wait_until_angle_changed_by(delta)
-    motor.stop(stop_action=BRAKE_TYPE)
-    motor_inv.stop(stop_action=BRAKE_TYPE)
+    if d > 0:
+        delta = DEGREE_SUCCESS_RATE * d
+    else:
+        delta = DEGREE_SUCCESS_RATE_NEG * d
+    print("delta", delta)
+    print("angle start", GYRO.angle)
+    steering = -100 if delta < 0 else 100
+    MOVE_STEERING.on(steering=steering, speed=SPEED)
+    GYRO.wait_until_angle_changed_by(delta, direction_sensitive=True)
+    print("angle end", GYRO.angle)
+    MOVE_STEERING.off()
 
 
-
-def forward(t):
-    LEFT.run_timed(time_sp=t, speed_sp=SPEED, stop_action=BRAKE_TYPE)
-    RIGHT.run_timed(time_sp=t, speed_sp=SPEED, stop_action=BRAKE_TYPE)
-    sleep(1 + t // 1000)
-
-
-
-def forward_by_millimeter(millimeter):
-    meter = millimeter / 1000
-    forward(meter * METER_IN_MS)
-    
 
 def print_state():
     print('SPEED = ', SPEED)
@@ -107,6 +126,7 @@ if __name__ == '__main__':
         "- FD to move forward (by distance in millimeters)",
         "- ST to print state",
         "- ER to change degree success rate",
+        "- ERN to change negative degree success rate",
         "- T to turn",
         "- R to reset",
         "- S to change speed",
@@ -115,26 +135,28 @@ if __name__ == '__main__':
     ]
     while True:
         print('\n'.join(CHOICES))
-        choice = input("Enter a choice : ")
-        if choice in ['f', 'F']:
+        choice = input("Enter a choice : ").lower()
+        if choice == 'f':
             time = int(input('Enter time (in milliseconds) : '))
             forward(time)
-        elif choice in ['fd', 'FD', 'fD', 'Fd']:
+        elif choice == 'fd':
             dist_millimeters = int(input('Enter distance (in millimeter) : '))
             forward_by_millimeter(dist_millimeters)
-        elif choice in ['er', 'Er', 'ER', 'eR']:
+        elif choice == 'er':
             set_succ_rate(float(input('Enter new degree turn success rate : ')))
-        elif choice in ['st', 'ST', 'St', 'sT']:
+        elif choice == 'ern':
+            set_succ_rate_neg(float(input('Enter new negative degree turn success rate : ')))
+        elif choice == 'st':
             print_state()
-        elif choice in ['t', 'T']:
+        elif choice == 't':
             deg = float(input('Enter angle (in degree) :'))
             turn(deg)
-        elif choice in ['s', 'S']:
+        elif choice == 's':
             SPEED = int(input('Enter speed :'))
-        elif choice in ['r', 'R']:
+        elif choice == 'r':
             reset_gyro()
             print("GYRO angle = ", GYRO.angle)
-        elif choice in ['b', 'B']:
+        elif choice == 'b':
             print("Types : ")
             for name, desc in BRAKE_TYPES_LIST:
                 print("\n" + name + " : " + desc)
@@ -143,10 +165,6 @@ if __name__ == '__main__':
                 print("Not a valide choice, no change")
             else:
                 BRAKE_TYPE = brake_choice
-        elif choice in ['p', 'P']:
-            path = parse_path(input(
-                'Enter path, (ex "(\'T\', -90), (\'M\', 300.0), (\'T\', -45), (\'M\', 424.2)") :'))
-            do_path(path)
         else:
             print("No valid choice, quitting ...")
             break
