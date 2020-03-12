@@ -14,26 +14,30 @@ except ImportError:
 
 NOTIFY_MOVEMENT_EVENT = "movement_notification"
 NOTIFY_END_EVENT = "end_notification"
+TIME_BEFORE_END_EVENT = 1  # in seconds
+
+
+
+def send_data(ws, data):
+    print("Sending", data)
+    ws.send(json.dumps(data))
 
 
 
 def perform_deplacement_mission(ws, actions):
     for action, arg in actions:
         if action == 'T':
-            print("turning on " + str(arg) + "deg")
+            print("Turning on " + str(arg) + "deg")
             robot.turn(arg)
         elif action == 'M':
-            print("moving forward by " + str(arg) + "mm")
+            print("Moving forward by " + str(arg) + "mm")
             robot.forward_by_millimeter(arg)
-            ws.send(json.dumps({
-                "event": NOTIFY_MOVEMENT_EVENT
-            }))
+            send_data(ws, {"event": NOTIFY_MOVEMENT_EVENT})
         else:
             print("unknow action '" + str(action) + "'")
-    sleep(0.2)  # wait before sending end event
-    ws.send(json.dumps({
-        "event": NOTIFY_END_EVENT
-    }))
+    print("Wait " + str(TIME_BEFORE_END_EVENT) + " seconds")
+    sleep(TIME_BEFORE_END_EVENT)  # wait before sending end event
+    send_data(ws, {"event": NOTIFY_END_EVENT})
 
 
 
