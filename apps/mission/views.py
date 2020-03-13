@@ -123,13 +123,21 @@ class StartMissionView(View):
             start = (mission.start_x, mission.start_y)
             end = (mission.end_x, mission.end_y)
             
-            base = robot_config["cell_div"]
-            start = utils.round_by_base(start[0], base), utils.round_by_base(start[1], base)
-            end = utils.round_by_base(end[0], base), utils.round_by_base(end[1], base)
+            ifc_data = mission.ifc.get_data()
             
-            path, actions = actions_and_path_from_ifc(mission.ifc.get_data(), mission.floor,
-                                                      start, end, robot_config)
-            x,y = path.pop(0)
+            base = robot_config["cell_div"]
+            
+            sx = utils.round_by_base(start[0], base, mini=ifc_data["x_min"])
+            sy = utils.round_by_base(start[1], base, mini=ifc_data["y_min"])
+            start = sx, sy
+            
+            ex = utils.round_by_base(end[0], base, mini=ifc_data["x_min"])
+            ey = utils.round_by_base(end[1], base, mini=ifc_data["x_min"])
+            end = ex, ey
+            
+            path, actions = actions_and_path_from_ifc(ifc_data, mission.floor, start, end,
+                                                      robot_config)
+            x, y = path.pop(0)
             data = {
                 "robot":  {
                     "type":    "deplacement",
@@ -145,8 +153,8 @@ class StartMissionView(View):
                                                                x=x, y=y)
             async_to_sync(layer.group_send)(str(robot.uuid),
                                             {
-                                                "type":       "mission_start",
-                                                "data":       data,
+                                                "type":    "mission_start",
+                                                "data":    data,
                                                 "mission": mission_inprog
                                             })
             return JsonResponse(status=200, data=mission_inprog.to_dict())
