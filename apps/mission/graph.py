@@ -15,10 +15,17 @@ def set_if_possible(matrix, x, y, val):
 
 
 
-def stretch(matrix, x, y, dist, val=1):
-    if dist == 0 or y >= len(matrix) or x >= len(matrix[y]):
+def stretch(matrix, x, y, stretch_size, cell_div, val=1):
+    if stretch_size == 0 or y >= len(matrix) or x >= len(matrix[y]):
         return
-    pos = [(x + dist, y), (x - dist, y), (x, y + dist), (x, y - dist)]
+
+    pos = []
+    for d in range(cell_div, stretch_size, cell_div):
+        pos.append((x + d, y))
+        pos.append((x - d, y))
+        pos.append((x, y + d))
+        pos.append((x, y - d))
+
     for xd, yd in pos:
         set_if_possible(matrix, xd, yd, val)
 
