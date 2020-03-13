@@ -127,12 +127,15 @@ class StartMissionView(View):
             
             base = robot_config["cell_div"]
             
-            sx = utils.round_by_base(start[0], base, mini=ifc_data["x_min"])
-            sy = utils.round_by_base(start[1], base, mini=ifc_data["y_min"])
+            x_min = int(ifc_data["dimensions"]["x_min"])
+            y_min = int(ifc_data["dimensions"]["y_min"])
+
+            sx = utils.round_by_base(start[0], base, x_min)
+            sy = utils.round_by_base(start[1], base, y_min)
             start = sx, sy
             
-            ex = utils.round_by_base(end[0], base, mini=ifc_data["x_min"])
-            ey = utils.round_by_base(end[1], base, mini=ifc_data["x_min"])
+            ex = utils.round_by_base(end[0], base, x_min)
+            ey = utils.round_by_base(end[1], base, y_min)
             end = ex, ey
             
             path, actions = actions_and_path_from_ifc(ifc_data, mission.floor, start, end,

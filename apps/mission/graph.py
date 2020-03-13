@@ -38,32 +38,36 @@ def points_on_polygons_gen(all_polygons, x_min, y_min):
 
 
 
+def add_edge(x1, y1, x2, y2, w, size, x_min, y_min, graph):
+    graph.add_edge((x1 * size + x_min, y1 * size + y_min),
+                   (x2 * size + x_min, y2 * size + y_min),
+                   weight=w)
+
+
+
 def create_graph(data, size, x_min, y_min):
     graph = nx.Graph()
-    add_edge = lambda x1, y1, x2, y2, w: graph.add_edge((x1 * size + x_min, y1 * size + y_min),
-                                                        (x2 * size + x_min, y2 * size + y_min),
-                                                        weight=w)
     
     for y in range(len(data)):
         for x in range(len(data[y])):
             if not data[y][x]:
                 if y + 1 < len(data) and not data[y + 1][x]:
-                    add_edge(x, y, x, (y + 1), 1)
+                    add_edge(x, y, x, (y + 1), 1, size, x_min, y_min, graph)
                 if y - 1 >= 0 and not data[y - 1][x]:
-                    add_edge(x, y, x, (y - 1), 1)
+                    add_edge(x, y, x, (y - 1), 1, size, x_min, y_min, graph)
                 if x + 1 < len(data[y]) and not data[y][x + 1]:
-                    add_edge(x, y, (x + 1), y, 1)
+                    add_edge(x, y, (x + 1), y, 1, size, x_min, y_min, graph)
                 if x - 1 >= 0 and not data[y][x - 1]:
-                    add_edge(x, y, (x - 1), y, 1)
+                    add_edge(x, y, (x - 1), y, 1, size, x_min, y_min, graph)
                 # diagonals
                 if y + 1 < len(data) and x + 1 < len(data[y]) and not data[y + 1][x + 1]:
-                    add_edge(x, y, (x + 1), (y + 1), sqrt(2))
+                    add_edge(x, y, (x + 1), (y + 1), sqrt(2), size, x_min, y_min, graph)
                 if y - 1 >= 0 and x + 1 < len(data[y]) and not data[y - 1][x + 1]:
-                    add_edge(x, y, (x + 1), (y - 1), sqrt(2))
+                    add_edge(x, y, (x + 1), (y - 1), sqrt(2), size, x_min, y_min, graph)
                 if y + 1 < len(data) and x - 1 >= 0 and not data[y + 1][x - 1]:
-                    add_edge(x, y, (x - 1), (y + 1), sqrt(2))
+                    add_edge(x, y, (x - 1), (y + 1), sqrt(2), size, x_min, y_min, graph)
                 if y - 1 >= 0 and x - 1 >= 0 and not data[y - 1][x - 1]:
-                    add_edge(x, y, (x - 1), (y - 1), sqrt(2))
+                    add_edge(x, y, (x - 1), (y - 1), sqrt(2), size, x_min, y_min, graph)
     return graph
 
 
