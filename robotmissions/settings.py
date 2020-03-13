@@ -122,8 +122,8 @@ ROBOT_CONFIGS = {
     },
     
     "turtlebot": {
-        "cell_div":     10,
-        "stretch_size": 21
+        "cell_div":     7,
+        "stretch_size": 22
     }
 }
 
