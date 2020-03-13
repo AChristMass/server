@@ -181,16 +181,16 @@ def create_matrix(ifc_data, floor, cell_div, stretch_size):
     
     # stretch all walls
     for x, y in points_on_polygons_gen(spaces_polygons.values(), x_min, y_min):
-        stretch(m, x, y, stretch_size)
+        stretch(m, x, y, stretch_size, cell_div)
     
     # stretch door boards
     # dist shouldn't have to be changed here
     for x, y in door_board_points:
-        stretch(m, x, y, stretch_size)
+        stretch(m, x, y, stretch_size, cell_div)
     
     # unstretch door ways
     for x, y in door_way_points:
-        stretch(m, x, y, stretch_size, val=0)
+        stretch(m, x, y, stretch_size, cell_div, val=0)
     
     # reduce to CELL_DIV size
     m = reduce(m, cell_div)
