@@ -13,7 +13,6 @@ MOVE_STEERING = MoveSteering(OUT_LEFT, OUT_RIGHT)
 
 DEGREE_SUCCESS_RATE = 0.92
 DEGREE_SUCCESS_RATE_NEG = 0.88
-
 METER_IN_MS = 8200
 
 BRAKE_TYPES_LIST = [
@@ -27,6 +26,13 @@ GYRO = GyroSensor(INPUT_2)
 GYRO.mode = 'GYRO-ANG'
 
 SPEED = 25  # in percent
+
+CUR_DEG = 0
+
+
+
+def fix_rotation():
+    turn(-CUR_DEG)
 
 
 
@@ -52,9 +58,13 @@ def forward_by_millimeter(millimeter):
     meter = millimeter / 1000
     forward(meter * METER_IN_MS)
 
+
+
 def set_succ_rate_neg(succ_rate):
     global DEGREE_SUCCESS_RATE_NEG
     DEGREE_SUCCESS_RATE_NEG = succ_rate
+
+
 
 def reset_gyro():
     GYRO.reset()
@@ -68,6 +78,7 @@ def set_succ_rate(succ_rate):
 
 
 def turn(d):
+    global CUR_DEG
     if d > 0:
         delta = DEGREE_SUCCESS_RATE * d
     else:
@@ -78,6 +89,7 @@ def turn(d):
     MOVE_STEERING.on(steering=steering, speed=SPEED)
     GYRO.wait_until_angle_changed_by(delta, direction_sensitive=True)
     print("angle end", GYRO.angle)
+    CUR_DEG = CUR_DEG + d
     MOVE_STEERING.off()
 
 

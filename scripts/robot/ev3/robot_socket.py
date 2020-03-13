@@ -46,6 +46,7 @@ def on_message(ws, message):
     data = json.loads(message)
     if data["type"] == "deplacement":
         def run():
+            robot.fix_rotation()
             perform_deplacement_mission(ws, data["actions"])
         thread.start_new_thread(run, ())
 
@@ -70,11 +71,8 @@ def on_open(ws):
 
 
 def main():
-    if len(sys.argv) != 2:
-        print("usage: robot_socket websocketip")
-        return
     websocket.enableTrace(True)
-    uri = "ws://" + sys.argv[1] + "/robotsocket/"
+    uri = "ws://35.210.237.250/robotsocket/"
     
     ws = websocket.WebSocketApp(uri,
                                 on_message=on_message,
