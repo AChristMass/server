@@ -46,7 +46,7 @@ def create_graph(data, size, x_min, y_min):
     
     for y in range(len(data)):
         for x in range(len(data[y])):
-            if not data[y][x]:
+            if not data[y][x] or data[y][x] == 2:
                 if y + 1 < len(data) and not data[y + 1][x]:
                     add_edge(x, y, x, (y + 1), 1)
                 if y - 1 >= 0 and not data[y - 1][x]:
@@ -68,17 +68,22 @@ def create_graph(data, size, x_min, y_min):
 
 
 
-def reduce(matrix, size):
+def reduce(matrix, size, start):
     data = [[0] * (len(matrix[0]) // size + 1) for _ in range(len(matrix) // size + 1)]
-    
+    x, y = int(start[0]), int(start[1])
+    matrix[y][x] = 2
     for y in range(0, len(matrix), size):
         block = matrix[y:y + size]
         for x in range(0, len(matrix[0]), size):
             for k in range(len(block)):
-                if any(block[k][x:x + size]):
-                    data[y // size][x // size] = 1
+                if 2 in block[k][x:x + size]:
+                    data[y // size][x // size] = 2
+                    res_x, res_y = x, y
                     break
-    return data
+                elif 1 in block[k][x:x + size]:
+                    data[y // size][x // size] = 1
+                    
+    return data, res_x, res_y
 
 
 
@@ -142,7 +147,7 @@ def create_actions_and_finalpath(path, directions, all_actions):
 
 
 
-def create_matrix(ifc_data, floor, cell_div, stretch_size):
+def create_matrix(ifc_data, floor, cell_div, stretch_size, source):
     data = ifc_data
     spaces_polygons = data["floors"][floor]["spacesPolygons"]
     doors_polygons = data["floors"][floor]["doorsPolygons"]
@@ -182,9 +187,9 @@ def create_matrix(ifc_data, floor, cell_div, stretch_size):
         stretch(m, x, y, stretch_size, val=0)
     
     # reduce to CELL_DIV size
-    m = reduce(m, cell_div)
+    m, x, y = reduce(m, cell_div, source)
     
-    return m
+    return m, x, y
 
 
 
@@ -208,12 +213,12 @@ def actions_and_path_from_ifc(ifc_data, floor, source, target, robot_config):
     }
     
     # create final graph
-    m = create_matrix(ifc_data, floor, cell_div, stretch_size)
-    graph = create_graph(m, cell_div, int(ifc_data["dimensions"]["xMin"]),
-                         int(ifc_data["dimensions"]["yMin"]))
+    x_min, y_min = int(ifc_data["dimensions"]["xMin"]), int(ifc_data["dimensions"]["yMin"])
+    m, x, y = create_matrix(ifc_data, floor, cell_div, stretch_size, (source[0] - x_min, source[1] - y_min))
+    graph = create_graph(m, cell_div, x_min, y_min)
     # find path between two points
     
     path = nx.algorithms.shortest_paths.generic.shortest_path(
-        graph, source=source, target=target, weight="weight")
+        graph, source=(x, y), target=target, weight="weight")
     
     return create_actions_and_finalpath(path, directions, actions)
