@@ -8,6 +8,7 @@ from django.db import models
 from ifc.parsing import doors_polygons, spaces_infos, spaces_polygons_data
 
 
+# This class represents an IFC file
 
 class IfcModel(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -15,7 +16,7 @@ class IfcModel(models.Model):
     file_path = models.FilePathField(path=settings.IFC_FILES_DIR)
     last_upload = models.DateTimeField(auto_now_add=True)
     
-    
+    # Parse an IFC file into an instance of this class
     @classmethod
     def parse(cls, ifc_file):
         ifc = ifcopenshell.open(ifc_file)
@@ -59,7 +60,7 @@ class IfcModel(models.Model):
         #  TODO : something
         return True
     
-    
+    # Returns the different data of an IFC in a dictionary
     def to_dict(self):
         return dict(
             id=self.pk,
@@ -68,14 +69,14 @@ class IfcModel(models.Model):
             last_upload=self.last_upload
         )
     
-    
+    # Returns the data field of the IFC
     def get_data(self):
         data = self.data
         if type(self.data) is not dict:
             data = json.loads(data)
         return data
     
-    
+    # Returns whether the floor or the points are in the limits of the IFC
     def check_position(self, floor, points):
         ifc_data = self.get_data()
         x_min = ifc_data["dimensions"]["xMin"]

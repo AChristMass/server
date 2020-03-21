@@ -13,7 +13,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 logger = logging.getLogger(__name__)
 
 
-
+# This class represents the object that is between the server and the robot
 class RobotConsumer(WebsocketConsumer):
     
     def __init__(self, *args, **kwargs):
