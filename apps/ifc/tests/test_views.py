@@ -37,8 +37,7 @@ class IfcViewTestCase(TestCase):
     
     def test_get(self):
         response = self.client.get(reverse("ifc:main_pk", args=[1]))
-        data = '"name": "test1", "data": {"testk": "testv"},'
-        self.assertContains(response, data, status_code=200)
+        self.assertContains(response, "testk", status_code=200)
     
     
     def test_get_not_exist(self):
