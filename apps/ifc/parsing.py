@@ -1,4 +1,4 @@
-#
+# Returns the polygons for the spaces
 def spaces_polygons_data(spaces, rel_space_boundary):
     poly_map = {}
     x_min = x_max = y_min = y_max = None
@@ -37,7 +37,7 @@ def spaces_polygons_data(spaces, rel_space_boundary):
     return poly_map, x_min, x_max, y_min, y_max
 
 
-#
+# Returns the polygons for the doors
 def doors_polygons(spaces, rel_space_boundary):
     doors_polys = {}
     for rel in rel_space_boundary:
@@ -64,7 +64,7 @@ def doors_polygons(spaces, rel_space_boundary):
     return doors_polys
 
 
-# Returns the point in the middle of the points
+# Returns the point in the middle of the array of point
 def get_middle_point(points):
     total = (0, 0)
     for p in points:

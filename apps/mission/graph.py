@@ -120,7 +120,7 @@ def create_move_action(cur_pos, nxt_pos):
     return distance * 10
 
 
-
+# Returns a tuple with the actions of the robot and the path to accomplish the mission
 def create_actions_and_finalpath(path, directions, all_actions):
     direction = directions["NORTH"]
     actions = []

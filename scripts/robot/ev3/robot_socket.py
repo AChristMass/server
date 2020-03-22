@@ -17,13 +17,13 @@ NOTIFY_END_EVENT = "end_notification"
 TIME_BEFORE_END_EVENT = 1  # in seconds
 
 
-
+# Send some data to the server
 def send_data(ws, data):
     print("Sending", data)
     ws.send(json.dumps(data))
 
 
-
+# Performs all the actions one by one for the mission
 def perform_deplacement_mission(ws, actions):
     for action, arg in actions:
         if action == 'T':
@@ -40,7 +40,7 @@ def perform_deplacement_mission(ws, actions):
     send_data(ws, {"event": NOTIFY_END_EVENT})
 
 
-
+# Prints when a message is received
 def on_message(ws, message):
     print("### message ### : " + message)
     data = json.loads(message)
@@ -51,17 +51,17 @@ def on_message(ws, message):
         thread.start_new_thread(run, ())
 
 
-
+# Prints when an error occured
 def on_error(ws, error):
     print(error)
 
 
-
+# Prints when the connection is closed with the websocket
 def on_close(ws):
     print("### closed ###")
 
 
-
+# Prints when the connection is opened with the websocket
 def on_open(ws):
     print("### open ###")
     with open("conf.json", "r") as jsonfile:
