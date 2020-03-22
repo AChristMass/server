@@ -15,6 +15,6 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "robotmissions.settings")
 
 if settings.APPS_DIR not in sys.path:
     sys.path.append(settings.APPS_DIR)
-    
+
 django.setup()
 application = get_default_application()
