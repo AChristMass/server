@@ -3,8 +3,8 @@ from django.db import models
 from ifc.models import IfcModel
 from robot.models import RobotModel
 
-# This class represents a mission for a robot with a starting point and finishing point
 
+# This class represents a mission for a robot with a starting point and finishing point
 class DeplacementMissionModel(models.Model):
     ifc = models.ForeignKey(IfcModel, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
