@@ -5,6 +5,8 @@ from ev3dev2.sensor import INPUT_2
 from ev3dev2.sensor.lego import GyroSensor
 
 
+# This file contains all the function that are being called to control the Ev3 robot
+
 OUT_LEFT = OUTPUT_B
 OUT_RIGHT = OUTPUT_A
 
@@ -30,12 +32,12 @@ SPEED = 25  # in percent
 CUR_DEG = 0
 
 
-
+# Call the function to turn the robot with a angle that is pre-defined
 def fix_rotation():
     turn(-CUR_DEG)
 
 
-
+# Call the function to move forward
 def forward(t):
     print("start")
     wait_time = t / 1000  # in seconds
@@ -53,30 +55,30 @@ def forward(t):
     sleep(1)
 
 
-
+# Call the function to move the robot forward of a number of millimeter
 def forward_by_millimeter(millimeter):
     meter = millimeter / 1000
     forward(meter * METER_IN_MS)
 
 
-
+# Sets the success rate negative
 def set_succ_rate_neg(succ_rate):
     global DEGREE_SUCCESS_RATE_NEG
     DEGREE_SUCCESS_RATE_NEG = succ_rate
 
 
-
+# Call the function to reset the gyroscope
 def reset_gyro():
     GYRO.reset()
 
 
-
+# Sets the success rate
 def set_succ_rate(succ_rate):
     global DEGREE_SUCCESS_RATE
     DEGREE_SUCCESS_RATE = succ_rate
 
 
-
+# Send the action of turning to the robot with the right angle
 def turn(d):
     global CUR_DEG
     if d > 0:
@@ -93,7 +95,7 @@ def turn(d):
     MOVE_STEERING.off()
 
 
-
+# Prints the state of the variables of the robot
 def print_state():
     print('SPEED = ', SPEED)
     print('METER_IN_MS = ', METER_IN_MS)
@@ -104,7 +106,7 @@ def print_state():
     print('GYRO ANGLE = ', GYRO.angle)
 
 
-
+# Parse the file containing the actions needed for the mission
 def _parse_path(txt):
     path = []
     elem_list = txt.replace('(', '').split('),')
@@ -116,7 +118,7 @@ def _parse_path(txt):
     return path
 
 
-
+# Parse the actions that are received and call the right functions corresponding with the action
 def do_actions(actions):
     for action, arg in actions:
         if action == 'T':

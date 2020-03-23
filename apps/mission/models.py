@@ -4,7 +4,7 @@ from ifc.models import IfcModel
 from robot.models import RobotModel
 
 
-
+# This class represents a mission for a robot with a starting point and finishing point
 class DeplacementMissionModel(models.Model):
     ifc = models.ForeignKey(IfcModel, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
@@ -14,7 +14,7 @@ class DeplacementMissionModel(models.Model):
     end_x = models.IntegerField(null=False)
     end_y = models.IntegerField(null=False)
     
-    
+    # Returns all the fields of this class in a dictionary
     def to_dict(self):
         return dict(
             id=self.pk,
@@ -28,7 +28,7 @@ class DeplacementMissionModel(models.Model):
         )
 
 
-
+# Represents a mission in progress
 class MissionInProgModel(models.Model):
     mission = models.ForeignKey(DeplacementMissionModel, on_delete=models.CASCADE)
     started_at = models.DateTimeField(auto_now_add=True)
@@ -37,8 +37,8 @@ class MissionInProgModel(models.Model):
     is_done = models.BooleanField(default=False)
     x = models.IntegerField(null=False)
     y = models.IntegerField(null=False)
-    
-    
+
+    # Returns all the fields of this class in a dictionary
     def to_dict(self):
         return dict(
             id=self.pk,

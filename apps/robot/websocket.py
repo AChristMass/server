@@ -14,7 +14,7 @@ from robot.models import RobotModel
 logger = logging.getLogger(__name__)
 
 
-
+# This class represents the socket for the robot
 class RobotConsumer(WebsocketConsumer):
     
     def __init__(self, *args, **kwargs):
@@ -23,11 +23,11 @@ class RobotConsumer(WebsocketConsumer):
         self.mission_in_prog = None
         self.data = {}
     
-    
+    # Connects the socket to the server
     def connect(self):
         self.accept()
     
-    
+    # Function called when something is received from the server to the robot
     def receive(self, text_data=None, bytes_data=None):
         try:
             data = json.loads(text_data)
@@ -60,7 +60,7 @@ class RobotConsumer(WebsocketConsumer):
             logger.info(f"Robot {self.model.uuid} sent command : {data}")
             self.__getattribute__(data["event"])(data)  # command from robot to socket
     
-    
+    # Disconnect the socket from the server
     def disconnect(self, code):
         if self.model:
             logger.info(f"Disconnecting robot {self.model.uuid}")
@@ -68,7 +68,7 @@ class RobotConsumer(WebsocketConsumer):
             self.model.disconnect()
             self.free()
     
-    
+    # Receive notification from the robot
     def movement_notification(self, data):
         x, y = self.data["path"].pop(0)
         logger.info(f"movement notification {x, y}")
@@ -82,11 +82,10 @@ class RobotConsumer(WebsocketConsumer):
             "mission": self.mission_in_prog
         })
     
-    
     def end_notification(self, data):
         self.free()
     
-    
+    # Start a mission if a mission is not already in progress
     def mission_start(self, event):
         if self.mission_in_prog is not None and not self.mission_in_prog.is_done:
             return  # a mission is already running
@@ -95,7 +94,7 @@ class RobotConsumer(WebsocketConsumer):
         self.data = event["data"]["socket"]
         self.send(text_data=json.dumps(event["data"]["robot"], cls=DjangoJSONEncoder))
     
-    
+    # Free the socket for the robot
     def free(self):
         logger.info(f"freeing robot socket")
         if self.mission_in_prog:
@@ -111,24 +110,25 @@ class RobotConsumer(WebsocketConsumer):
         self.data = {}
 
 
-
+# This robot represents the socket for the user, connected to a certain mission and
+# getting notified when a change occurs
 class UserConsumer(WebsocketConsumer):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
-    
+    # Connects the socket to the server
     def connect(self):
         self.accept()
         logger.info("New user connected")
         async_to_sync(self.channel_layer.group_add)(settings.USER_CHANNEL, self.channel_name)
     
-    
+    # Disconnects the socket from the server
     def disconnect(self, close_code):
         logger.info("User disconnected")
         async_to_sync(self.channel_layer.group_discard)(settings.USER_CHANNEL, self.channel_name)
     
-    
+    # Deal with the data received from the server
     def receive(self, text_data=None, bytes_data=None):
         logger.info(f"User received {text_data}")
         try:
@@ -140,14 +140,14 @@ class UserConsumer(WebsocketConsumer):
         if "missionId" in data:
             mission_channel = settings.MISSION_CHANNEL + str(data["missionId"])
             async_to_sync(self.channel_layer.group_add)(mission_channel, self.channel_name)
-    
-    
+
+    # Send a message to a group
     @classmethod
     def broadcast(cls, message):
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(settings.USER_CHANNEL, message)
     
-    
+    # Send the informations about the connected robots
     def robot_connected(self, event):
         logger.info(f"User socket : robot_connected")
         robot = event["robot"]
@@ -156,8 +156,9 @@ class UserConsumer(WebsocketConsumer):
                 "action": "robot_connection",
                 "robot":  robot.to_dict()
             }, cls=DjangoJSONEncoder))
-    
-    
+
+    # Update the position of the robot with the mission
+
     def update_position(self, event):
         logger.info(f"User socket : update_position")
         mission = event["mission"]
@@ -166,8 +167,8 @@ class UserConsumer(WebsocketConsumer):
             "position": {"x": mission.x, "y": mission.y}
         }
         self.send(text_data=json.dumps(data, cls=DjangoJSONEncoder))
-    
-    
+
+    # Prints the data about the mission when its done
     def mission_done(self, event):
         logger.info(f"User socket : mission_done")
         async_to_sync(self.channel_layer.group_discard)(event["channel"], self.channel_name)
