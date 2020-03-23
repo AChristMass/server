@@ -8,7 +8,7 @@ from django.db import models
 from ifc.parsing import doors_polygons, spaces_infos, spaces_polygons_data
 
 
-# This class represents an IFC file with its name, data (the actual building), the path of the IFC file
+# This class represents an IFC file with its name, data, the path of the IFC file
 
 class IfcModel(models.Model):
     name = models.CharField(max_length=100, unique=True)
