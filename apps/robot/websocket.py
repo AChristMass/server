@@ -110,8 +110,8 @@ class RobotConsumer(WebsocketConsumer):
         self.data = {}
 
 
-# This robot represents the socket for the user, connected to a certain mission and getting notified when a
-# change occurs
+# This robot represents the socket for the user, connected to a certain mission and 
+# getting notified when a change occurs
 class UserConsumer(WebsocketConsumer):
     
     def __init__(self, *args, **kwargs):
