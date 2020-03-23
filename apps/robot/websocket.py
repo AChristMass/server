@@ -13,6 +13,7 @@ from robot.models import RobotModel
 
 logger = logging.getLogger(__name__)
 
+
 # This class represents the socket for the robot
 class RobotConsumer(WebsocketConsumer):
     
