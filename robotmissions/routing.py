@@ -8,4 +8,3 @@ application = ProtocolTypeRouter({
     "websocket": URLRouter([url(r"^robotsocket/", RobotConsumer, name="robot_connect"),
                             url(r"^usersocket/", UserConsumer, name="user_connect")])
 })
-

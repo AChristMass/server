@@ -66,7 +66,8 @@ class IfcModel(models.Model):
             id=self.pk,
             name=self.name,
             data=json.dumps(self.data),
-            last_upload=self.last_upload
+            last_upload=self.last_upload,
+            path=self.file_path
         )
     
     # Returns the data field of the IFC
